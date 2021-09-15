@@ -17,7 +17,7 @@ public class AttributeSelection {
 
     }
     /*
-        CfsSubsetEval options
+         CfsSubsetEval options
       -M        Treat missing values as a separate value.
       -L        Don't include locally predictive attributes.
       -Z        Precompute the full correlation matrix at the outset, rather than compute correlations lazily (as needed) during the search. Use this in conjuction with parallel processing in order to speed up a backward search.
@@ -36,16 +36,18 @@ public class AttributeSelection {
      -D                 Print debugging output
     */
 
-    public List<Instances> cfs_GreedyStepWise(String[] optionsEval, String[] optionsSearch) throws Exception{
+    public List<Instances> cfs_GreedyStepWise(String optionsEval, String optionsSearch) throws Exception{
         weka.filters.supervised.attribute.AttributeSelection filter = new weka.filters.supervised.attribute.AttributeSelection();
         CfsSubsetEval eval = new CfsSubsetEval();
         GreedyStepwise search = new GreedyStepwise();
 
         if(optionsEval != null){
-            eval.setOptions(optionsEval);
+            String[] optEvalArray = weka.core.Utils.splitOptions(optionsEval);
+            eval.setOptions(optEvalArray);
         }
         if(optionsSearch != null){
-            search.setOptions(optionsSearch);
+            String[] optSearchArray = weka.core.Utils.splitOptions(optionsSearch);
+            search.setOptions(optSearchArray);
         }
 
         filter.setEvaluator(eval);
@@ -70,16 +72,18 @@ public class AttributeSelection {
         -T <threshold>  Specify a theshold by which attributes may be discarded from the ranking.
         -N <num to select>  Specify number of attributes to select
     */
-    public List<Instances> InfoGain_Ranker(String[] optionsEval, String[] optionsSearch) throws Exception{
+    public List<Instances> InfoGain_Ranker(String optionsEval, String optionsSearch) throws Exception{
         weka.filters.supervised.attribute.AttributeSelection filter = new weka.filters.supervised.attribute.AttributeSelection();
         InfoGainAttributeEval eval = new InfoGainAttributeEval();
         Ranker search = new Ranker();
 
         if(optionsEval != null){
-            eval.setOptions(optionsEval);
+            String[] optEvalArray = weka.core.Utils.splitOptions(optionsEval);
+            eval.setOptions(optEvalArray);
         }
         if(optionsSearch != null){
-            search.setOptions(optionsSearch);
+            String[] optSearchArray = weka.core.Utils.splitOptions(optionsSearch);
+            search.setOptions(optSearchArray);
         }
 
         filter.setEvaluator(eval);
@@ -94,21 +98,24 @@ public class AttributeSelection {
     }
 
     /*
+            Principal Components Analysis Options
         -C      Center (rather than standardize) the data and compute PCA using the covariance (rather than the correlation) matrix.
         -R      Retain enough PC attributes to account for this proportion of variance in the original data. (default = 0.95)
         -O      Transform through the PC space and back to the original space.
         -A      Maximum number of attributes to include in transformed attribute names. (-1 = include all)
      */
-    public List<Instances> PCA_Ranker(String[] optionsEval, String[] optionsSearch) throws Exception{
+    public List<Instances> PCA_Ranker(String optionsEval, String optionsSearch) throws Exception{
         weka.filters.supervised.attribute.AttributeSelection filter = new weka.filters.supervised.attribute.AttributeSelection();
         PrincipalComponents eval = new PrincipalComponents();
         Ranker search = new Ranker();
 
         if(optionsEval != null){
-            eval.setOptions(optionsEval);
+            String[] optEvalArray = weka.core.Utils.splitOptions(optionsEval);
+            eval.setOptions(optEvalArray);
         }
         if(optionsSearch != null){
-            search.setOptions(optionsSearch);
+            String[] optSearchArray = weka.core.Utils.splitOptions(optionsSearch);
+            search.setOptions(optSearchArray);
         }
 
         filter.setEvaluator(eval);
