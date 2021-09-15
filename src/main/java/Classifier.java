@@ -13,26 +13,28 @@ import java.util.List;
 class Result{
     String classifier;
     String attrSel;
-    Double accuracy;
-    Double[] classTPR;
-    Double[] classFPR;
-    Double[] precision;
-    Double[] recall;
-    Double[] fMeasure;
-    Double weightedTPR;
-    Double weightedFPR;
-    Double weightedPrecision;
-    Double weightedRecall;
-    Double weightedFMeasure;
+    double[] classSamples;
+    double accuracy;
+    double[] classTPR;
+    double[] classFPR;
+    double[] precision;
+    double[] recall;
+    double[] fMeasure;
+    double weightedTPR;
+    double weightedFPR;
+    double weightedPrecision;
+    double weightedRecall;
+    double weightedFMeasure;
 
     public Result(String classifierName, String attrSelName){
         classifier = classifierName;
         attrSel = attrSelName;
-        classTPR = new Double[4];
-        classFPR = new Double[4];
-        precision = new Double[4];
-        recall = new Double[4];
-        fMeasure = new Double[4];
+        classSamples = new double[4];
+        classTPR = new double[4];
+        classFPR = new double[4];
+        precision = new double[4];
+        recall = new double[4];
+        fMeasure = new double[4];
     }
 }
 
@@ -61,23 +63,15 @@ public class Classifier {
         tree.setOptions(options);
         tree.buildClassifier(train);
 
-        // Evaluation: training Set
-        //Evaluation eval = new Evaluation(train);
-        //eval.evaluateModel(tree,train);
-        //String resultEvalTrain = eval.toSummaryString("Results Training:\n", false);
-
         // Evaluation: test set
         Evaluation evalTs = new Evaluation(train);
         evalTs.evaluateModel(tree,test);
         addEvalResults(evalTs, "J48");
-
-        String resultEvaltest = evalTs.toSummaryString("Results Test:\n", false);
-        System.out.println(evalTs.toMatrixString());
-        System.out.println(evalTs.pctCorrect());
     }
 
     private void addEvalResults(Evaluation eval, String classifier){
         Result r = new Result(classifier, attrSel);
+        r.classSamples = eval.getClassPriors();
         for(int i=0; i<4; i++) {
             r.classTPR[i] = eval.truePositiveRate(i + 1);
             r.classTPR[i] = eval.falsePositiveRate(i + 1);
@@ -87,9 +81,10 @@ public class Classifier {
         }
         r.weightedTPR = eval.weightedTruePositiveRate();
         r.weightedFPR = eval.weightedFalsePositiveRate();
-        r.weightedTPR = eval.weightedTruePositiveRate();
-
-
+        r.weightedPrecision = eval.weightedPrecision();
+        r.weightedRecall = eval.weightedRecall();
+        r.weightedFMeasure = eval.weightedFMeasure();
+        results.add(r);
     }
 
     private void comparingResults(){

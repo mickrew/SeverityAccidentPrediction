@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Preprocessor {
+    SpreadSubsample spreadFilte
 
     public static List<Instances> filter (Instances train, Instances test) throws Exception {
         System.out.println("------------------------------------");
