@@ -8,35 +8,65 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ManageCSV {
 
-    String header = "ID,Severity,Start_Time,End_Time,Start_Lat,Start_Lng,End_Lat,End_Lng,Distance(mi),Description,Number,Street,Side,City,County,State,Zipcode,Country,Timezone,Airport_Code,Weather_Timestamp,Temperature(F),Wind_Chill(F),Humidity(%),Pressure(in),Visibility(mi),Wind_Direction,Wind_Speed(mph),Precipitation(in),Weather_Condition,Amenity,Bump,Crossing,Give_Way,Junction,No_Exit,Railway,Roundabout,Station,Stop,Traffic_Calming,Traffic_Signal,Turning_Loop,Sunrise_Sunset,Civil_Twilight,Nautical_Twilight,Astronomical_Twilight, Duration, Weekday, Hour\n";
-    CSVReader reader = new CSVReader(new FileReader("AccidentListTot.csv"));
-    int[] countSeverity = new int[4];
-    int countTuples =0;
+    private String header = "ID,Severity,Start_Time,End_Time,Start_Lat,Start_Lng,End_Lat,End_Lng,Distance(mi),Description,Number,Street,Side,City,County,State,Zipcode,Country,Timezone,Airport_Code,Weather_Timestamp,Temperature(F),Wind_Chill(F),Humidity(%),Pressure(in),Visibility(mi),Wind_Direction,Wind_Speed(mph),Precipitation(in),Weather_Condition,Amenity,Bump,Crossing,Give_Way,Junction,No_Exit,Railway,Roundabout,Station,Stop,Traffic_Calming,Traffic_Signal,Turning_Loop,Sunrise_Sunset,Civil_Twilight,Nautical_Twilight,Astronomical_Twilight, Duration, Weekday, Hour\n";
 
-    ArrayList<String[]> list;
+    private int[] countSeverity = new int[4];
+    private int countTuples =0;
+    private Double percentageSeverity4 = 1.0;
+    private Double percentageSeverity2 = 0.7;
+    private Double percentageSeverity1 = 0.7;
+    private Double percentageSeverity3 = 0.8;
+
+    ArrayList<String[]> list = new ArrayList<>();
 
     public ManageCSV() throws FileNotFoundException {
     }
 
     private void initializeCountSeverity(){
-        countSeverity[0]=0;
-        countSeverity[1]=0;
-        countSeverity[2]=0;
-        countSeverity[3]=0;
+        countSeverity[0]=0; //Severity 1
+        countSeverity[1]=0; //Severity 2
+        countSeverity[2]=0; //Severity 3
+        countSeverity[3]=0; //Severity 4
     }
 
 
+    public void reduceList(){
 
+        //int[] tmpCountSeverity = countSeverity;
+        Iterator itr = list.iterator();
+        String[] tmp;
+        while(itr.hasNext()){
+           tmp = (String[]) itr.next();
+           if (tmp[1].contains("2")){
+               if (countSeverity[1]>=percentageSeverity2*countSeverity[3]){
+                   itr.remove();
+                   countSeverity[1]--;
+                   continue;
+               }
+           }
+            if (tmp[1].contains("3")){
+                if (countSeverity[2]>=percentageSeverity3*countSeverity[3]){
+                    itr.remove();
+                    countSeverity[2]--;
+                    continue;
+                }
+            }
+            if (tmp[1].contains("1")){
+                if (countSeverity[0]>=percentageSeverity1*countSeverity[3]){
+                    itr.remove();
+                    countSeverity[0]--;
+                    continue;
+                }
+            }
+        }
 
+    }
 
-    public ArrayList<String[]> getTuples(Date dateStart, int granularity) throws IOException {
+    public void getTuples(Date dateStart, int granularity) throws IOException {
         String header = "ID,Severity,Start_Time,End_Time,Start_Lat,Start_Lng,End_Lat,End_Lng,Distance(mi),Description,Number,Street,Side,City,County,State,Zipcode,Country,Timezone,Airport_Code,Weather_Timestamp,Temperature(F),Wind_Chill(F),Humidity(%),Pressure(in),Visibility(mi),Wind_Direction,Wind_Speed(mph),Precipitation(in),Weather_Condition,Amenity,Bump,Crossing,Give_Way,Junction,No_Exit,Railway,Roundabout,Station,Stop,Traffic_Calming,Traffic_Signal,Turning_Loop,Sunrise_Sunset,Civil_Twilight,Nautical_Twilight,Astronomical_Twilight, Duration, Weekday, Hour\n";
 
         FileWriter write = new FileWriter("temple.csv");
@@ -71,12 +101,15 @@ public class ManageCSV {
                     countSeverity[severity-1]++;
 
                 nextLine = checkValues(nextLine);
-
+                this.list.add(nextLine);
                 csvWriter.writeNext(nextLine);
             }
         }
+        write.flush();
+        write.close();
+        this.list=list;
         countTuples = count-1;
-        return list;
+        //return list;
     }
 
     private String[] checkValues(String[] nextLine) {
@@ -123,12 +156,32 @@ public class ManageCSV {
         return nextLine;
     }
 
+
+    //save in csv the current list
+    public void writeCSV(String name) throws IOException {
+        FileWriter write = new FileWriter(name);
+        write.write(header);
+        CSVWriter csvWriter = new CSVWriter(write);
+        Iterator itr = list.iterator();
+        String[] tmp;
+        while(itr.hasNext()){
+            csvWriter.writeNext((String[]) itr.next());
+        }
+        csvWriter.close();
+        write.close();
+
+    }
+
     public int getCountTuples() {
         return countTuples;
     }
 
     public String getHeader() {
         return header;
+    }
+
+    public ArrayList<String[]> getList() {
+        return list;
     }
 
     public int[] getCountSeverity() {

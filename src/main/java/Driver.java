@@ -10,10 +10,12 @@ public class Driver {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        String dateString = "2016-01-30 12:00:00";
+        String dateString = "2016-06-30 12:00:00";
         Date date = sdf.parse(dateString);
 
         manager.getTuples(date, 3);
+        manager.reduceList();
+        manager.writeCSV("templeReduced.csv");
         System.out.println("fine");
 
     }
