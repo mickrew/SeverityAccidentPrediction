@@ -1,33 +1,77 @@
 import weka.core.Instances;
 import weka.filters.Filter;
+import weka.filters.MultiFilter;
 import weka.filters.supervised.instance.SpreadSubsample;
+import weka.filters.unsupervised.attribute.NumericCleaner;
+import weka.filters.unsupervised.attribute.ReplaceMissingValues;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Preprocessor {
-    SpreadSubsample spreadFilte
+    private static SpreadSubsample spreadFilter;
+    private static NumericCleaner cleanerFilterTemperature;
+    private static NumericCleaner cleanerFilterPressure;
+    private static NumericCleaner cleanerFilterWindspeed;
+    private static NumericCleaner cleanerFilterVisibility;
+    private static ReplaceMissingValues replaceFilter;
 
-    public static List<Instances> filter (Instances train, Instances test) throws Exception {
+    public static List<Instances> filter (Instances train, Instances test, int maxSpread) throws Exception {
         System.out.println("------------------------------------");
         System.out.println("===> Start PreProcessing");
 
+        MultiFilter mf = new MultiFilter();
+        mf.setFilters(new Filter[] {cleanerFilterVisibility, cleanerFilterWindspeed, cleanerFilterPressure, cleanerFilterTemperature, replaceFilter});
+
         System.out.println("Applying filter: SpreadSubsample");
-        SpreadSubsample filter = new SpreadSubsample();
-        filter.setDistributionSpread(0);
-        filter.setInputFormat(train);
+        spreadFilter = new SpreadSubsample();
+        spreadFilter.setMaxCount(maxSpread);
+        spreadFilter.setInputFormat(train);
 
         // S=Random Seed; M=Max Class Distr. Spread; W=mantain weight; X=max # samples
-        String opt = "-S 1 -M 10.0 -W no -X 30000";
-        System.out.println("\tfilter options:");
-        System.out.println("\tSeed: 1\tMax Class Spread: 10.0\tweight: no\tMax #samples: 30000");
-        String[] optArray = weka.core.Utils.splitOptions(opt);
-        filter.setOptions(optArray);
-        filter.setInputFormat(train);
+        // String opt = "-S 1 -M 10.0 -W no -X 30000";
+        // System.out.println("\tfilter options:");
+        // System.out.println("\tSeed: 1\tMax Class Spread: 10.0\tweight: no\tMax #samples: 30000");
+        //String[] optArray = weka.core.Utils.splitOptions(opt);
+        //spreadFilter.setOptions(optArray);
+        //spreadFilter.setInputFormat(train);
+
+        System.out.println("Applying filter: NumericCleaner ");
+        cleanerFilterTemperature = new NumericCleaner();
+        cleanerFilterTemperature.setAttributeIndices("9");
+        cleanerFilterTemperature.setMaxDefault(Double.NaN);
+        cleanerFilterTemperature.setMaxThreshold(130.0);
+        cleanerFilterTemperature.setMinDefault(Double.NaN);
+        cleanerFilterTemperature.setMinThreshold(-130.0);
+
+        cleanerFilterPressure = new NumericCleaner();
+        cleanerFilterPressure.setAttributeIndices("11");
+        cleanerFilterPressure.setMaxDefault(Double.NaN);
+        cleanerFilterPressure.setMaxThreshold(32.06);
+        cleanerFilterPressure.setMinDefault(Double.NaN);
+        cleanerFilterPressure.setMinThreshold(25.0);
+
+        cleanerFilterVisibility = new NumericCleaner();
+        cleanerFilterVisibility.setAttributeIndices("12");
+        cleanerFilterVisibility.setMaxDefault(Double.NaN);
+        cleanerFilterVisibility.setMaxThreshold(10.1);
+        cleanerFilterVisibility.setMinDefault(Double.NaN);
+        cleanerFilterVisibility.setMinThreshold(0.0);
+
+        cleanerFilterWindspeed = new NumericCleaner();
+        cleanerFilterWindspeed.setAttributeIndices("14");
+        cleanerFilterWindspeed.setMaxDefault(Double.NaN);
+        cleanerFilterWindspeed.setMaxThreshold(254.1);
+        cleanerFilterWindspeed.setMinDefault(Double.NaN);
+        cleanerFilterWindspeed.setMinThreshold(0.0);
+
+        replaceFilter = new ReplaceMissingValues();
+
 
         // configures the Filter based on train instances and returns filtered instances: both training and test set
-        Instances newTrain = Filter.useFilter(train, filter);
+        Instances newTrain = Filter.useFilter(train, mf);
         System.out.println("\t> Training Set filtered");
-        Instances newTest = Filter.useFilter(test, filter);
+        Instances newTest = Filter.useFilter(test, mf);
         System.out.println("\t> Test Set filtered");
 
         List<Instances> list = new ArrayList<>();
