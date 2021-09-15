@@ -35,7 +35,6 @@ public class AttributeSelection {
      -num-slots <int>   The number of execution slots, for example, the number of cores in the CPU. (default 1)
      -D                 Print debugging output
     */
-
     public List<Instances> cfs_GreedyStepWise(String optionsEval, String optionsSearch) throws Exception{
         weka.filters.supervised.attribute.AttributeSelection filter = new weka.filters.supervised.attribute.AttributeSelection();
         CfsSubsetEval eval = new CfsSubsetEval();
