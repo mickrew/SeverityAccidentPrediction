@@ -39,8 +39,8 @@ class Result{
 public class Classifier {
     private Instances train;
     private Instances test;
+    private String attrSel; // Attribute Selection applied on Training & Test Sets
     private ArrayList<Result> results;
-    private String attrSel;
 
     public Classifier(Instances trainingSet, Instances testSet, String attrSelName){
         train = trainingSet;
@@ -69,22 +69,25 @@ public class Classifier {
         // Evaluation: test set
         Evaluation evalTs = new Evaluation(train);
         evalTs.evaluateModel(tree,test);
-        printEvalResults(evalTs);
+        addEvalResults(evalTs, "J48");
 
         String resultEvaltest = evalTs.toSummaryString("Results Test:\n", false);
         System.out.println(evalTs.toMatrixString());
         System.out.println(evalTs.pctCorrect());
     }
 
-    private void printEvalResults(Evaluation eval, String Classifier){
-        Result r = new Result();
+    private void addEvalResults(Evaluation eval, String classifier){
+        Result r = new Result(classifier, attrSel);
         for(int i=0; i<4; i++) {
-            classTPR[i] = eval.truePositiveRate(i + 1);
-            classTPR[i] = eval.falsePositiveRate(i + 1);
-            precision[i] = eval.precision(i+1);
-            recall[i] = eval.recall(i+1);
-            fMeasure[i] = eval.fMeasure(i+1);
+            r.classTPR[i] = eval.truePositiveRate(i + 1);
+            r.classTPR[i] = eval.falsePositiveRate(i + 1);
+            r.precision[i] = eval.precision(i+1);
+            r.recall[i] = eval.recall(i+1);
+            r.fMeasure[i] = eval.fMeasure(i+1);
         }
+        r.weightedTPR = eval.weightedTruePositiveRate();
+        r.weightedFPR = eval.weightedFalsePositiveRate();
+        r.weightedTPR = eval.weightedTruePositiveRate();
 
 
     }
