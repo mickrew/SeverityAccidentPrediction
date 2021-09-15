@@ -61,11 +61,19 @@ public class Classifier {
         }
         J48 tree = new J48();
         tree.setOptions(options);
+        train.setClassIndex(0);
         tree.buildClassifier(train);
+
 
         // Evaluation: test set
         Evaluation evalTs = new Evaluation(train);
+        test.setClassIndex(0);
         evalTs.evaluateModel(tree,test);
+        /*********/
+        System.out.println(evalTs.toSummaryString("Results Test:\n", false));
+        System.out.println(evalTs.toMatrixString());
+        System.out.println(evalTs.pctCorrect());
+        /*********/
         addEvalResults(evalTs, "J48");
     }
 
@@ -73,11 +81,11 @@ public class Classifier {
         Result r = new Result(classifier, attrSel);
         r.classSamples = eval.getClassPriors();
         for(int i=0; i<4; i++) {
-            r.classTPR[i] = eval.truePositiveRate(i + 1);
-            r.classTPR[i] = eval.falsePositiveRate(i + 1);
-            r.precision[i] = eval.precision(i+1);
-            r.recall[i] = eval.recall(i+1);
-            r.fMeasure[i] = eval.fMeasure(i+1);
+            r.classTPR[i] = eval.truePositiveRate(i );
+            r.classTPR[i] = eval.falsePositiveRate(i);
+            r.precision[i] = eval.precision(i);
+            r.recall[i] = eval.recall(i);
+            r.fMeasure[i] = eval.fMeasure(i);
         }
         r.weightedTPR = eval.weightedTruePositiveRate();
         r.weightedFPR = eval.weightedFalsePositiveRate();

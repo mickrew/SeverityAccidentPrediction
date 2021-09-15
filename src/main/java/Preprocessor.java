@@ -1,11 +1,11 @@
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
 import weka.filters.Filter;
 import weka.filters.MultiFilter;
 import weka.filters.supervised.instance.SpreadSubsample;
-import weka.filters.unsupervised.attribute.ClassAssigner;
-import weka.filters.unsupervised.attribute.NumericCleaner;
-import weka.filters.unsupervised.attribute.ReplaceMissingValues;
+import weka.filters.unsupervised.attribute.*;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +17,9 @@ public class Preprocessor {
     private static NumericCleaner cleanerFilterVisibility;
     private static ReplaceMissingValues replaceFilter;
     private static ClassAssigner classAssigner;
+    private static Remove removeFilter;
+    private static NumericToNominal numericToNominal;
+
 
     public static List<Instances> filter (Instances train, Instances test, int maxSpread) throws Exception {
         System.out.println("------------------------------------");
@@ -42,14 +45,25 @@ public class Preprocessor {
         //spreadFilter.setOptions(optArray);
         //spreadFilter.setInputFormat(train);
 
-        System.out.println("Applying filter: NumericCleaner ");
+
+        String[] op = new String[]{"-R","1,3,4,7,8,10-12,17-21,23,38,43,45-47"};
+        Remove rmv = new Remove();
+        rmv.setOptions(op);
+        rmv.setInputFormat(train);
+        /*
+        removeFilter.setAttributeIndices("1,3,4,7,8,10-12,17-21,23,38,43,45-47");
+        removeFilter.setInputFormat(train);
+        */
+
+        numericToNominal = new NumericToNominal();
+        numericToNominal.setAttributeIndices("1,31");
+
         cleanerFilterTemperature = new NumericCleaner();
         cleanerFilterTemperature.setAttributeIndices("9");
         cleanerFilterTemperature.setMaxDefault(Double.NaN);
         cleanerFilterTemperature.setMaxThreshold(130.0);
         cleanerFilterTemperature.setMinDefault(Double.NaN);
         cleanerFilterTemperature.setMinThreshold(-130.0);
-        cleanerFilterTemperature.setInputFormat(train);
 
         cleanerFilterPressure = new NumericCleaner();
         cleanerFilterPressure.setAttributeIndices("11");
@@ -57,7 +71,6 @@ public class Preprocessor {
         cleanerFilterPressure.setMaxThreshold(32.06);
         cleanerFilterPressure.setMinDefault(Double.NaN);
         cleanerFilterPressure.setMinThreshold(25.0);
-        cleanerFilterPressure.setInputFormat(train);
 
         cleanerFilterVisibility = new NumericCleaner();
         cleanerFilterVisibility.setAttributeIndices("12");
@@ -65,7 +78,6 @@ public class Preprocessor {
         cleanerFilterVisibility.setMaxThreshold(10.1);
         cleanerFilterVisibility.setMinDefault(Double.NaN);
         cleanerFilterVisibility.setMinThreshold(0.0);
-        cleanerFilterVisibility.setInputFormat(train);
 
         cleanerFilterWindspeed = new NumericCleaner();
         cleanerFilterWindspeed.setAttributeIndices("14");
@@ -73,31 +85,52 @@ public class Preprocessor {
         cleanerFilterWindspeed.setMaxThreshold(254.1);
         cleanerFilterWindspeed.setMinDefault(Double.NaN);
         cleanerFilterWindspeed.setMinThreshold(0.0);
-        cleanerFilterWindspeed.setInputFormat(train);
 
         replaceFilter = new ReplaceMissingValues();
-        replaceFilter.setInputFormat(train);
+
+
 
 
         // configures the Filter based on train instances and returns filtered instances: both training and test set
 
-        Filter.useFilter(train, classAssigner);
-        Filter.useFilter(train, spreadFilter);
-        Filter.useFilter(train, cleanerFilterVisibility);
-        Filter.useFilter(train, cleanerFilterWindspeed);
-        Filter.useFilter(train, cleanerFilterPressure);
-        Filter.useFilter(train, cleanerFilterTemperature);
-        Filter.useFilter(train, replaceFilter);
-        Instances newTrain = new Instances(train);
+        Instances newTrain = Filter.useFilter(train, rmv);
 
-        Instances newTest = Filter.useFilter(train, classAssigner);
-        newTrain = Filter.useFilter(train, cleanerFilterVisibility);
-        newTrain = Filter.useFilter(train, cleanerFilterWindspeed);
-        newTrain = Filter.useFilter(train, cleanerFilterPressure);
-        newTrain = Filter.useFilter(train, cleanerFilterTemperature);
-        newTrain = Filter.useFilter(train, replaceFilter);
+        numericToNominal.setInputFormat(newTrain);
+        cleanerFilterTemperature.setInputFormat(newTrain);
+        cleanerFilterPressure.setInputFormat(newTrain);
+        cleanerFilterVisibility.setInputFormat(newTrain);
+        cleanerFilterWindspeed.setInputFormat(newTrain);
+        replaceFilter.setInputFormat(newTrain);
 
+        newTrain = Filter.useFilter(newTrain, numericToNominal);
+        newTrain = Filter.useFilter(newTrain, cleanerFilterVisibility);
+        newTrain = Filter.useFilter(newTrain, cleanerFilterWindspeed);
+        newTrain = Filter.useFilter(newTrain, cleanerFilterPressure);
+        newTrain = Filter.useFilter(newTrain, cleanerFilterTemperature);
+        newTrain = Filter.useFilter(newTrain, replaceFilter);
 
+        Instances newTest = Filter.useFilter(test, rmv);
+
+        numericToNominal.setInputFormat(newTest);
+        cleanerFilterTemperature.setInputFormat(newTest);
+        cleanerFilterPressure.setInputFormat(newTest);
+        cleanerFilterVisibility.setInputFormat(newTest);
+        cleanerFilterWindspeed.setInputFormat(newTest);
+        replaceFilter.setInputFormat(newTest);
+
+        newTrain = Filter.useFilter(newTrain, numericToNominal);
+        newTest = Filter.useFilter(newTest, cleanerFilterVisibility);
+        newTest = Filter.useFilter(newTest, cleanerFilterWindspeed);
+        newTest = Filter.useFilter(newTest, cleanerFilterPressure);
+        newTest = Filter.useFilter(newTest, cleanerFilterTemperature);
+        newTest = Filter.useFilter(newTest, replaceFilter);
+
+        train.setClassIndex(1);
+
+        ArffSaver saver = new ArffSaver();
+        saver.setInstances(newTrain);
+        saver.setFile(new File("train.arff"));
+        saver.writeBatch();
 
         //Instances newTrain = Filter.useFilter(train, mf);
         System.out.println("\t> Training Set filtered");
@@ -108,5 +141,9 @@ public class Preprocessor {
         list.add(newTrain);
         list.add(newTest);
         return list;
+    }
+
+    public static void setRemoveFilter(Remove removeFilter) {
+        Preprocessor.removeFilter = removeFilter;
     }
 }

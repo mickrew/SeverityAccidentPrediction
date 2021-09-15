@@ -40,12 +40,16 @@ public class Driver {
         int testSize = dataSet.numInstances() - trainSize;
 
         Instances train = new Instances(dataSet, 0, trainSize);
-        train.setClassIndex(2);
+        //train.setClassIndex(2);
 
         Instances test = new Instances(dataSet, trainSize, testSize);
 
         int[] numInstancesSeverity = manager.getCountSeverity();
         List<Instances> data = Preprocessor.filter(train, test, numInstancesSeverity[3]);
+
+
+        Classifier j48 = new Classifier(data.get(0), data.get(1), "ciao");
+        j48.J48(null);
 
         System.out.println("fine");
 
