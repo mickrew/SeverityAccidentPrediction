@@ -1,5 +1,8 @@
 import weka.core.Instances;
+import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
+
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,15 +20,18 @@ public class Driver {
         String dateString = "2016-06-30 12:00:00";
         Date date = sdf.parse(dateString);
 
-        manager.getTuples(date, 3);
-        manager.reduceList();
-        manager.writeCSV("templeReduced.csv");
+        //manager.getTuples(date, 3);
+        //manager.reduceList();
+        //manager.writeCSV("templeReduced.csv");
 
 
         double trainPercentage = 66.0;
         int randomSeed = 1;
 
-        DataSource source = new DataSource("templeReduced.csv");
+        //CSVLoader source = new CSVLoader();
+        DataSource source = new DataSource("temple.arff");
+        //source.setSource(new File("templeReduced.csv"));
+
 
         final Instances dataSet = source.getDataSet();
         dataSet.randomize(new Random(randomSeed));
@@ -34,12 +40,12 @@ public class Driver {
         int testSize = dataSet.numInstances() - trainSize;
 
         Instances train = new Instances(dataSet, 0, trainSize);
+        train.setClassIndex(2);
+
         Instances test = new Instances(dataSet, trainSize, testSize);
-        int[] numInstancesSeverity4 = manager.getCountSeverity();
 
-        List<Instances> data = Preprocessor.filter(train, test, numInstancesSeverity4[3]);
-
-
+        int[] numInstancesSeverity = manager.getCountSeverity();
+        List<Instances> data = Preprocessor.filter(train, test, numInstancesSeverity[3]);
 
         System.out.println("fine");
 
