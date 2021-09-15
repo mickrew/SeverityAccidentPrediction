@@ -32,7 +32,6 @@ public class Driver {
         DataSource source = new DataSource("temple.arff");
         //source.setSource(new File("templeReduced.csv"));
 
-
         final Instances dataSet = source.getDataSet();
         dataSet.randomize(new Random(randomSeed));
 
@@ -49,7 +48,7 @@ public class Driver {
 
 
         Classifier j48 = new Classifier(data.get(0), data.get(1), "ciao");
-        j48.J48(null);
+        j48.j48(null);
 
         System.out.println("fine");
 
