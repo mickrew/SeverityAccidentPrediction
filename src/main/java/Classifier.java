@@ -22,10 +22,12 @@ public class Classifier {
     private String startDate;
     private String endDate;
     private ArrayList<Result> results;
+    Timer timer = new Timer();
 
     public Classifier(){
         results = new ArrayList<>();
     }
+
     public Classifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate){
         results = new ArrayList<>();
         updateClassifier(trainingSet, testSet, attrSelName, startDate, endDate);
@@ -52,16 +54,18 @@ public class Classifier {
         J48 tree = new J48();
         if(options != null)
             tree.setOptions(weka.core.Utils.splitOptions(options));
+        timer.startTimer();
         tree.buildClassifier(train);
         // Evaluation: test set
         Evaluation evalTs = new Evaluation(train);
         evalTs.evaluateModel(tree,test);
-        /****/
-        System.out.println(evalTs.toSummaryString("Results Test:\n", false));
-        System.out.println(evalTs.toMatrixString());
-        System.out.println(evalTs.pctCorrect());
-        /****/
-        addEvalResults(evalTs, "J48");
+        timer.stopTimer();
+        ///****/
+        //System.out.println(evalTs.toSummaryString("Results Test:\n", false));
+        //System.out.println(evalTs.toMatrixString());
+        //System.out.println(evalTs.pctCorrect());
+        ///****/
+        addEvalResults(evalTs, "J48", timer.getTime());
     }
     
     public void randomForest(String options) throws Exception{
@@ -70,16 +74,18 @@ public class Classifier {
         RandomForest rForest = new RandomForest();
         if(options != null)
             rForest.setOptions(weka.core.Utils.splitOptions(options));
+        timer.startTimer();
         rForest.buildClassifier(train);
         // Evaluation: test set
         Evaluation evalTs = new Evaluation(train);
         evalTs.evaluateModel(rForest,test);
-        /****/
-        System.out.println(evalTs.toSummaryString("Results Test:\n", false));
-        System.out.println(evalTs.toMatrixString());
-        System.out.println(evalTs.pctCorrect());
-        /****/
-        addEvalResults(evalTs, "RandomForest");
+        timer.stopTimer();
+        ///****/
+        //System.out.println(evalTs.toSummaryString("Results Test:\n", false));
+        //System.out.println(evalTs.toMatrixString());
+        //System.out.println(evalTs.pctCorrect());
+        ///****/
+        addEvalResults(evalTs, "RandomForest", timer.getTime());
     }
 
     public void naiveBayes(String options) throws Exception{
@@ -88,23 +94,26 @@ public class Classifier {
         NaiveBayes nBayes = new NaiveBayes();
         if(options != null)
             nBayes.setOptions(weka.core.Utils.splitOptions(options));
+        timer.startTimer();
         nBayes.buildClassifier(train);
         // Evaluation: test set
         Evaluation evalTs = new Evaluation(train);
         evalTs.evaluateModel(nBayes,test);
-        /****/
-        System.out.println(evalTs.toSummaryString("Results Test:\n", false));
-        System.out.println(evalTs.toMatrixString());
-        System.out.println(evalTs.pctCorrect());
-        /****/
-        addEvalResults(evalTs, "NaiveBayes");
+        timer.stopTimer();
+        ///****/
+        //System.out.println(evalTs.toSummaryString("Results Test:\n", false));
+        //System.out.println(evalTs.toMatrixString());
+        //System.out.println(evalTs.pctCorrect());
+        ///****/
+        addEvalResults(evalTs, "NaiveBayes", timer.getTime());
     }
 
-    private void addEvalResults(Evaluation eval, String classifier) throws Exception{
+    private void addEvalResults(Evaluation eval, String classifier, String time) throws Exception{
         Result r = new Result(classifier);
         r.attrSel = attrSel;
         r.startDate = startDate;
         r.endDate = endDate;
+        r.timeRequired = time;
         r.classSamples = eval.getClassPriors();
         for(int i=0; i<4; i++) {
             r.classTPR[i] = eval.truePositiveRate(i );

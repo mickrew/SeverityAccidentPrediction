@@ -64,6 +64,18 @@ public class Driver {
             classifier.naiveBayes(null);
         }
 
+        List<String> attrNames = new ArrayList<>();
+        attrNames.add("cfs_BestFirst");
+        attrNames.add("cfs_GreedyStepWise");
+        attrNames.add("InfoGain_Ranker");
+        for(int i=0; i<listAttrSel.size(); i++){
+            List<Instances> datasets = listAttrSel.get(i);
+            classifier.updateClassifier(datasets.get(0),datasets.get(1), attrNames.get(i), "2000-01-01","2000-03-01");
+            classifier.j48(null);
+            classifier.randomForest(null);
+            classifier.naiveBayes(null);
+        }
+
         Visualizer.printResults(classifier.getResults(),"results.txt");
         System.out.println("fine");
 

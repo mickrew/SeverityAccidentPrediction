@@ -5,6 +5,7 @@ public class Result implements Serializable{
     public String attrSel;
     public String startDate;
     public String endDate;
+    public String timeRequired;
     public double[] classSamples;
     public double accuracy;
     public double[] classTPR;

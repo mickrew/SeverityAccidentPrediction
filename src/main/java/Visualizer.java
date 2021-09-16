@@ -31,26 +31,26 @@ public class Visualizer{
 
     private static void printSingleResult(PrintWriter printWriter, Result r){
         printWriter.printf("-----------------------------------------------------------------------------------------\n");
-        printWriter.printf("%-12s%-12s%-6s%-15s%-15s\n", r.startDate,r.endDate,r.classifier, r.attrSel,"Accuracy: "+r.accuracy);
-        printWriter.printf("%-45s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
+        printWriter.printf("%-12s%-12s%-6s%-20s%-15s%-20s\n", r.startDate,r.endDate,r.classifier, r.attrSel,"Accuracy: "+r.accuracy, "ClassifierTime:"+r.timeRequired);
+        printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
         double sum=0;
         for(int i=0; i<4; i++) {
-            printWriter.printf("%-45s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", r.classSamples[i], r.classTPR[i], r.classFPR[i], r.precision[i], r.recall[i], r.fMeasure[i]);
+            printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", r.classSamples[i], r.classTPR[i], r.classFPR[i], r.precision[i], r.recall[i], r.fMeasure[i]);
             sum += r.classSamples[i];
         }
-        printWriter.printf("%-45s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:", sum,r.weightedTPR, r.weightedFPR, r.weightedPrecision, r.weightedRecall, r.weightedFMeasure);
+        printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:", sum,r.weightedTPR, r.weightedFPR, r.weightedPrecision, r.weightedRecall, r.weightedFMeasure);
     }
 
     private static void printIncrementalResult(PrintWriter printWriter, Result newR, Result oldR){
         printWriter.printf("-----------------------------------------------------------------------------------------\n");
-        printWriter.printf("%-12s%-12s%-6s%-15s%-15s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: "+(newR.accuracy-oldR.accuracy));
-        printWriter.printf("%-45s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
+        printWriter.printf("%-12s%-12s%-6s%-20s%-15s%-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: "+(newR.accuracy-oldR.accuracy), "ClassifierTime:"+newR.timeRequired);
+        printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
         double newSum=0, oldSum=0;
         for(int i=0; i<4; i++) {
-            printWriter.printf("%-45s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", newR.classSamples[i]-oldR.classSamples[i], newR.classTPR[i]-oldR.classTPR[i], newR.classFPR[i]-oldR.classFPR[i], newR.precision[i]-oldR.precision[i], newR.recall[i]-oldR.recall[i], newR.fMeasure[i]-oldR.fMeasure[i]);
+            printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", newR.classSamples[i]-oldR.classSamples[i], newR.classTPR[i]-oldR.classTPR[i], newR.classFPR[i]-oldR.classFPR[i], newR.precision[i]-oldR.precision[i], newR.recall[i]-oldR.recall[i], newR.fMeasure[i]-oldR.fMeasure[i]);
             newSum += newR.classSamples[i];
             oldSum += oldR.classSamples[i];
         }
-        printWriter.printf("%-45s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:", newSum-oldSum,newR.weightedTPR-oldR.weightedTPR, newR.weightedFPR-oldR.weightedFPR, newR.weightedPrecision-oldR.weightedPrecision, newR.weightedRecall-oldR.weightedRecall, newR.weightedFMeasure-oldR.weightedFMeasure);
+        printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:", newSum-oldSum,newR.weightedTPR-oldR.weightedTPR, newR.weightedFPR-oldR.weightedFPR, newR.weightedPrecision-oldR.weightedPrecision, newR.weightedRecall-oldR.weightedRecall, newR.weightedFMeasure-oldR.weightedFMeasure);
     }
 }
