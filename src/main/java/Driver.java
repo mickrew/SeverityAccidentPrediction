@@ -58,13 +58,15 @@ public class Driver {
         listAttrSel.add(list3);
         //listAttrSel.add(list4);
 
+        Classifier classifier = new Classifier();
         for(List<Instances> datasets : listAttrSel) {
-            Classifier classifier1 = new Classifier(datasets.get(0), datasets.get(1), "");
-            classifier1.j48(null);
-            classifier1.randomForest(null);
-            classifier1.naiveBayes(null);
+            classifier.updateClassifier(datasets.get(0),datasets.get(1), "cfs_BestFirst", "2000-01-01","2000-03-01");
+            classifier.j48(null);
+            classifier.randomForest(null);
+            classifier.naiveBayes(null);
         }
 
+        Visualizer.printResults(classifier.getResults(),"results.txt");
         System.out.println("fine");
 
     }

@@ -8,6 +8,10 @@ import weka.core.converters.ConverterUtils;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,14 +19,26 @@ public class Classifier {
     private Instances train;
     private Instances test;
     private String attrSel; // Attribute Selection applied on Training & Test Sets
+    private String startDate;
+    private String endDate;
     private ArrayList<Result> results;
 
-    public Classifier(Instances trainingSet, Instances testSet, String attrSelName){
+    public Classifier(){
+        results = new ArrayList<>();
+    }
+    public Classifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate){
+        results = new ArrayList<>();
+        updateClassifier(trainingSet, testSet, attrSelName, startDate, endDate);
+    }
+
+    public void updateClassifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate){
         train = trainingSet;
         test = testSet;
-        results = new ArrayList<>();
         attrSel = attrSelName;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
+
     public void setClass(){
         train.setClassIndex(0);
         test.setClassIndex(0);
@@ -85,7 +101,10 @@ public class Classifier {
     }
 
     private void addEvalResults(Evaluation eval, String classifier) throws Exception{
-        Result r = new Result(classifier, attrSel);
+        Result r = new Result(classifier);
+        r.attrSel = attrSel;
+        r.startDate = startDate;
+        r.endDate = endDate;
         r.classSamples = eval.getClassPriors();
         for(int i=0; i<4; i++) {
             r.classTPR[i] = eval.truePositiveRate(i );
