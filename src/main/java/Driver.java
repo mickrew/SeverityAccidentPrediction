@@ -6,10 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Driver {
     public static void main(String[] args) throws Exception {
@@ -58,11 +55,19 @@ public class Driver {
         listAttrSel.add(list3);
         //listAttrSel.add(list4);
 
+        Date dateTimeStart = new Date();
+        Date dateTimeEnd = new Date();
+        long start = dateTimeStart.getTime();
+        long end = 0L;
         for(List<Instances> datasets : listAttrSel) {
             Classifier classifier1 = new Classifier(datasets.get(0), datasets.get(1), "");
             classifier1.j48(null);
             classifier1.randomForest(null);
             classifier1.naiveBayes(null);
+            dateTimeEnd = new Date();
+            end = dateTimeEnd.getTime();
+            System.out.println("Time: " + Long.toString((end-start)/1000));
+            System.out.println("____________________________________________________________________________________________________________");
         }
 
         System.out.println("fine");

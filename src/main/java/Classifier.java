@@ -31,7 +31,7 @@ public class Classifier {
     public ArrayList<Result> getResults(){ return results;}
     
     public void j48(String options) throws Exception{
-        setClass();
+        //setClass();
         //building
         J48 tree = new J48();
         if(options != null)
@@ -49,7 +49,7 @@ public class Classifier {
     }
     
     public void randomForest(String options) throws Exception{
-        setClass();
+        //setClass();
         //building
         RandomForest rForest = new RandomForest();
         if(options != null)
@@ -67,7 +67,7 @@ public class Classifier {
     }
 
     public void naiveBayes(String options) throws Exception{
-        setClass();
+        //setClass();
         //building
         NaiveBayes nBayes = new NaiveBayes();
         if(options != null)

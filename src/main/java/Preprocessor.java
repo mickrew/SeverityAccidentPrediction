@@ -138,6 +138,8 @@ public class Preprocessor {
         System.out.println("\t> Test Set filtered");
 
         List<Instances> list = new ArrayList<>();
+        newTrain.setClassIndex(0);
+        newTest.setClassIndex(0);
         list.add(newTrain);
         list.add(newTest);
         return list;
