@@ -1,11 +1,11 @@
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import org.apache.commons.lang3.time.DateUtils;
+import weka.core.Instances;
+import weka.core.converters.ArffSaver;
+import weka.core.converters.CSVLoader;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -64,6 +64,86 @@ public class ManageCSV {
             }
         }
 
+    }
+
+    public void getTuplesFast(Date dateStart, int granularity) throws IOException {
+        FileWriter write = new FileWriter("temple.csv");
+        CSVWriter csvWriter = new CSVWriter(write);
+        write.write(header);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        Date dateEnd = DateUtils.addMonths(dateStart, granularity);
+
+        ArrayList<String> nameFiles = new ArrayList<>();
+        for(int i =0; i<= granularity; i++){
+            Date tmp = DateUtils.addMonths(dateStart, i);
+            String nameFile = String.valueOf(tmp.getYear()+1900) + "-" + String.valueOf(tmp.getMonth()) + ".csv";
+            nameFiles.add(nameFile);
+        }
+
+        CSVReader reader;
+        Date date = new Date();
+
+        String[] nextLine;
+        initializeCountSeverity();
+
+        int count=0;
+
+        for(int i = 0; i<= granularity; i++){
+            reader = new CSVReader(new FileReader(nameFiles.get(i)));
+            nextLine = reader.readNext(); //read the header from file
+            while ((nextLine = reader.readNext()) != null) {
+
+                if (count % 10000 == 0)
+                    System.out.println(count);
+
+                count++;
+
+                try {
+                    date = sdf.parse(nextLine[2]);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                if (date.getTime() >= dateStart.getTime() && date.getTime() <= dateEnd.getTime()){
+
+                    int severity = Integer.valueOf(nextLine[1]);
+                    if (severity <=4 && severity>=1)
+                        countSeverity[severity-1]++;
+                    nextLine = checkValues(nextLine);
+                    this.list.add(nextLine);
+                    csvWriter.writeNext(nextLine);
+                }
+            }
+            reader.close();
+
+        }
+        System.out.println(count);
+        System.out.println("Saving files ... ... ... ");
+        write.flush();
+        write.close();
+        //csvWriter.close();
+        countTuples = count-1;
+
+        Timer t = new Timer();
+        t.startTimer();
+        CSVLoader source = new CSVLoader();
+        source.setSource(new File("temple.csv"));
+        System.out.println("File .csv saved ");
+        t.stopTimer();
+        t.printTimer();
+
+        t.startTimer();
+        ArffSaver saver = new ArffSaver();
+
+        Instances dataSet = source.getDataSet();
+
+        saver.setInstances(dataSet);
+        saver.setFile(new File("temple.arff"));
+        System.out.println("File .arff saved ");
+        saver.writeBatch();
+        t.stopTimer();
+        t.printTimer();
     }
 
     public void getTuples(Date dateStart, int granularity) throws IOException {
@@ -171,6 +251,23 @@ public class ManageCSV {
         write.close();
 
     }
+
+    public void saveARFF(File file) throws IOException {
+
+        CSVLoader source = new CSVLoader();
+        source.setSource(file);
+        ArffSaver saver = new ArffSaver();
+
+        Instances dataSet = source.getDataSet();
+
+        saver.setInstances(dataSet);
+        saver.setFile(new File("temple.arff"));
+        saver.writeBatch();
+    }
+
+
+
+
 
     public int getCountTuples() {
         return countTuples;

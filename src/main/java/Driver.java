@@ -17,9 +17,10 @@ public class Driver {
         String dateString = "2016-06-30 12:00:00";
         Date date = sdf.parse(dateString);
 
-        //manager.getTuples(date, 3);
-        //manager.reduceList();
-        //manager.writeCSV("templeReduced.csv");
+        manager.getTuplesFast(date, 3);
+        manager.reduceList();
+        manager.writeCSV("templeReduced.csv");
+        manager.saveARFF(new File("templeReduced.csv"));
 
 
         double trainPercentage = 66.0;
