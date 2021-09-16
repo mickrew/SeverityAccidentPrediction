@@ -66,7 +66,7 @@ public class ManageCSV {
 
     }
 
-    public void getTuplesFast(Date dateStart, int granularity) throws IOException {
+    public void getTuplesFromDB(Date dateStart, int granularity) throws IOException {
         FileWriter write = new FileWriter("temple.csv");
         CSVWriter csvWriter = new CSVWriter(write);
         write.write(header);

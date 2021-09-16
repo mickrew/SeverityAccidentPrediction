@@ -28,11 +28,11 @@ public class Preprocessor {
         MultiFilter mf = new MultiFilter();
         mf.setFilters(new Filter[] {cleanerFilterVisibility, cleanerFilterWindspeed, cleanerFilterPressure, cleanerFilterTemperature, replaceFilter});
 
-        System.out.println("Applying filter: ClassAssigner");
+        //System.out.println("Applying filter: ClassAssigner");
         classAssigner = new ClassAssigner();
         classAssigner.setClassIndex("2");
 
-        System.out.println("Applying filter: SpreadSubsample");
+        //System.out.println("Applying filter: SpreadSubsample");
         spreadFilter = new SpreadSubsample();
         spreadFilter.setMaxCount(maxSpread);
         //spreadFilter.setInputFormat(train);
@@ -131,9 +131,9 @@ public class Preprocessor {
         saver.writeBatch();
 
         //Instances newTrain = Filter.useFilter(train, mf);
-        System.out.println("\t> Training Set filtered");
+        System.out.println("Training Set filtered");
         //Instances newTest = Filter.useFilter(test, mf);
-        System.out.println("\t> Test Set filtered");
+        System.out.println("Test Set filtered");
 
         List<Instances> list = new ArrayList<>();
         newTrain.setClassIndex(0);

@@ -50,9 +50,6 @@ public class SplitMonth1 {
         for(int i=0; i<12 ; i++){
             listWriter.get(i).flush();
             listWriter.get(i).close();
-
-            //listCSVWriter.get(i).flush();
-            //listCSVWriter.get(i).close();
         }
         for(int i=1; i<=12 ; i++){
             CSVLoader source = new CSVLoader();
