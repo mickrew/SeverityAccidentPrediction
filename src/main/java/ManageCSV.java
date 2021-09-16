@@ -78,7 +78,7 @@ public class ManageCSV {
         ArrayList<String> nameFiles = new ArrayList<>();
         for(int i =0; i<= granularity; i++){
             Date tmp = DateUtils.addMonths(dateStart, i);
-            String nameFile = String.valueOf(tmp.getYear()+1900) + "-" + String.valueOf(tmp.getMonth()) + ".csv";
+            String nameFile = String.valueOf("data\\" + (tmp.getYear()+1900) + "-" + String.valueOf(tmp.getMonth()) + ".csv");
             nameFiles.add(nameFile);
         }
 
