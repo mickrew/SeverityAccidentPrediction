@@ -1,6 +1,6 @@
 import java.io.*;
 
-class Result implements Serializable{
+public class Result implements Serializable{
     public String classifier;
     public String attrSel;
     public double[] classSamples;
@@ -28,5 +28,9 @@ class Result implements Serializable{
         recall = new double[4];
         fMeasure = new double[4];
 
+    }
+
+    public String getResult(){
+        return summaryEval;
     }
 }

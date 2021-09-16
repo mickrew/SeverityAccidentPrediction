@@ -44,11 +44,26 @@ public class Driver {
         Instances test = new Instances(dataSet, trainSize, testSize);
 
         int[] numInstancesSeverity = manager.getCountSeverity();
-        List<Instances> data = Preprocessor.filter(train, test, numInstancesSeverity[3]);
+        List<Instances> dataFiltered = Preprocessor.filter(train, test, numInstancesSeverity[3]);
 
+        AttributeSelection attSel = new AttributeSelection(dataFiltered.get(0), dataFiltered.get(1));
+        List<List<Instances>> listAttrSel = new ArrayList<>();
 
-        Classifier j48 = new Classifier(data.get(0), data.get(1), "ciao");
-        j48.j48(null);
+        List<Instances> list1 = attSel.cfs_BestFirst(null,null);
+        List<Instances> list2 = attSel.cfs_GreedyStepWise(null,null);
+        List<Instances> list3 = attSel.InfoGain_Ranker(null,null);
+        //List<Instances> list4 = attSel.PCA_Ranker(null,null);
+        listAttrSel.add(list1);
+        listAttrSel.add(list2);
+        listAttrSel.add(list3);
+        //listAttrSel.add(list4);
+
+        for(List<Instances> datasets : listAttrSel) {
+            Classifier classifier1 = new Classifier(datasets.get(0), datasets.get(1), "");
+            classifier1.j48(null);
+            classifier1.randomForest(null);
+            classifier1.naiveBayes(null);
+        }
 
         System.out.println("fine");
 
