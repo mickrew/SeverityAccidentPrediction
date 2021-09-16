@@ -20,15 +20,19 @@ public class Driver {
         manager.getTuplesFast(date, 3);
         manager.reduceList();
         manager.writeCSV("templeReduced.csv");
-        manager.saveARFF(new File("templeReduced.csv"));
+        //manager.saveARFF(new File("templeReduced.csv"));
 
 
         double trainPercentage = 66.0;
         int randomSeed = 1;
 
-        //CSVLoader source = new CSVLoader();
-        DataSource source = new DataSource("temple.arff");
-        //source.setSource(new File("templeReduced.csv"));
+        CSVLoader source = new CSVLoader();
+        //DataSource source = new DataSource("templeLoad.arff");
+        source.setMissingValue("nan");
+        source.setNominalAttributes("1-4,12-20,21,27,30-47,49,50");
+        source.setNumericAttributes("5-9,11,22-26,28,29,48");
+        source.setStringAttributes("10");
+        source.setSource(new File("templeReduced.csv"));
 
         final Instances dataSet = source.getDataSet();
         dataSet.randomize(new Random(randomSeed));
@@ -42,9 +46,11 @@ public class Driver {
         Instances test = new Instances(dataSet, trainSize, testSize);
 
         int[] numInstancesSeverity = manager.getCountSeverity();
+
         List<Instances> dataFiltered = Preprocessor.filter(train, test, numInstancesSeverity[3]);
 
         AttributeSelection attSel = new AttributeSelection(dataFiltered.get(0), dataFiltered.get(1));
+
         List<List<Instances>> listAttrSel = new ArrayList<>();
 
         List<Instances> list1 = attSel.cfs_BestFirst(null,null);
@@ -59,6 +65,7 @@ public class Driver {
         Classifier classifier = new Classifier();
         for(List<Instances> datasets : listAttrSel) {
             classifier.updateClassifier(datasets.get(0),datasets.get(1), "cfs_BestFirst", "2000-01-01","2000-03-01");
+
             classifier.j48(null);
             classifier.randomForest(null);
             classifier.naiveBayes(null);
@@ -68,6 +75,7 @@ public class Driver {
         attrNames.add("cfs_BestFirst");
         attrNames.add("cfs_GreedyStepWise");
         attrNames.add("InfoGain_Ranker");
+
         for(int i=0; i<listAttrSel.size(); i++){
             List<Instances> datasets = listAttrSel.get(i);
             classifier.updateClassifier(datasets.get(0),datasets.get(1), attrNames.get(i), "2000-01-01","2000-03-01");

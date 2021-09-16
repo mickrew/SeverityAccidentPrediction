@@ -127,13 +127,17 @@ public class ManageCSV {
 
         Timer t = new Timer();
         t.startTimer();
+
         CSVLoader source = new CSVLoader();
         source.setSource(new File("temple.csv"));
         System.out.println("File .csv saved ");
+
         t.stopTimer();
         t.printTimer();
 
+        /*
         t.startTimer();
+
         ArffSaver saver = new ArffSaver();
 
         Instances dataSet = source.getDataSet();
@@ -144,6 +148,8 @@ public class ManageCSV {
         saver.writeBatch();
         t.stopTimer();
         t.printTimer();
+        */
+
     }
 
     public void getTuples(Date dateStart, int granularity) throws IOException {
@@ -202,35 +208,35 @@ public class ManageCSV {
         try {
             temperature = Double.valueOf(nextLine[21]);
             if(temperature<-130 && temperature>130)
-                nextLine[21] = "nan";
+                nextLine[21] = String.valueOf(Double.NaN);
 
         } catch (Exception e) {
-            nextLine[21] = "nan";
+            nextLine[21] = String.valueOf(Double.NaN);
         }
 
         try {
             pressure = Double.valueOf(nextLine[24]);
             if(pressure<25 && pressure>32.06)
-                nextLine[21] = "nan";
+                nextLine[21] = String.valueOf(Double.NaN);
         } catch (Exception e) {
-            nextLine[24] = "nan";
+            nextLine[24] = String.valueOf(Double.NaN);
         }
 
         try {
             visibility = Double.valueOf(nextLine[25]);
             if(visibility<0 && visibility>10.01)
-                nextLine[21] = "nan";
+                nextLine[21] = String.valueOf(Double.NaN);
 
         } catch (Exception e) {
-            nextLine[25] = "nan";
+            nextLine[25] = String.valueOf(Double.NaN);
         }
 
         try {
             windSpeed = Double.valueOf(nextLine[27]);
             if(windSpeed<0 && windSpeed>254)
-                nextLine[21] = "nan";
+                nextLine[21] = String.valueOf(Double.NaN);
         } catch (Exception e) {
-            nextLine[27] = "nan";
+            nextLine[27] = String.valueOf(Double.NaN);
         }
 
         return nextLine;

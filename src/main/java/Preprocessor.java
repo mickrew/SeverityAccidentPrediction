@@ -50,6 +50,7 @@ public class Preprocessor {
         Remove rmv = new Remove();
         rmv.setOptions(op);
         rmv.setInputFormat(train);
+
         /*
         removeFilter.setAttributeIndices("1,3,4,7,8,10-12,17-21,23,38,43,45-47");
         removeFilter.setInputFormat(train);
@@ -89,8 +90,6 @@ public class Preprocessor {
         replaceFilter = new ReplaceMissingValues();
 
 
-
-
         // configures the Filter based on train instances and returns filtered instances: both training and test set
 
         Instances newTrain = Filter.useFilter(train, rmv);
@@ -118,14 +117,13 @@ public class Preprocessor {
         cleanerFilterWindspeed.setInputFormat(newTest);
         replaceFilter.setInputFormat(newTest);
 
-        newTrain = Filter.useFilter(newTrain, numericToNominal);
+        newTest = Filter.useFilter(newTest, numericToNominal);
         newTest = Filter.useFilter(newTest, cleanerFilterVisibility);
         newTest = Filter.useFilter(newTest, cleanerFilterWindspeed);
         newTest = Filter.useFilter(newTest, cleanerFilterPressure);
         newTest = Filter.useFilter(newTest, cleanerFilterTemperature);
         newTest = Filter.useFilter(newTest, replaceFilter);
 
-        train.setClassIndex(1);
 
         ArffSaver saver = new ArffSaver();
         saver.setInstances(newTrain);
