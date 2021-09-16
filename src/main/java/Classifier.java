@@ -40,6 +40,11 @@ public class Classifier {
         // Evaluation: test set
         Evaluation evalTs = new Evaluation(train);
         evalTs.evaluateModel(tree,test);
+        /****/
+        System.out.println(evalTs.toSummaryString("Results Test:\n", false));
+        System.out.println(evalTs.toMatrixString());
+        System.out.println(evalTs.pctCorrect());
+        /****/
         addEvalResults(evalTs, "J48");
     }
     
@@ -53,6 +58,11 @@ public class Classifier {
         // Evaluation: test set
         Evaluation evalTs = new Evaluation(train);
         evalTs.evaluateModel(rForest,test);
+        /****/
+        System.out.println(evalTs.toSummaryString("Results Test:\n", false));
+        System.out.println(evalTs.toMatrixString());
+        System.out.println(evalTs.pctCorrect());
+        /****/
         addEvalResults(evalTs, "RandomForest");
     }
 
@@ -66,6 +76,11 @@ public class Classifier {
         // Evaluation: test set
         Evaluation evalTs = new Evaluation(train);
         evalTs.evaluateModel(nBayes,test);
+        /****/
+        System.out.println(evalTs.toSummaryString("Results Test:\n", false));
+        System.out.println(evalTs.toMatrixString());
+        System.out.println(evalTs.pctCorrect());
+        /****/
         addEvalResults(evalTs, "NaiveBayes");
     }
 
