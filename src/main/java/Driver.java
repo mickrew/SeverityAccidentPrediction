@@ -51,17 +51,26 @@ public class Driver {
         attrNames.add("InfoGain_Ranker");
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = "2017-12-01 00:00:00";
-        Date date = sdf.parse(dateString);
+        Date dateStart = sdf.parse(dateString);
+        Date dateEnd;
         int drift =1;
-        int granularity = 3;
+        manager.setGranularity(6);
+        int lastGranularity= manager.getGranularity();
 
-        for (int j= 0; j<3; j++) {
-            date = DateUtils.addMonths(date, drift*j);
+        for (int j= 0; j<5; j++) {
+            lastGranularity= manager.getGranularity();
 
-            manager.getTuplesFromDB(date, granularity);
+            dateStart = DateUtils.addWeeks(dateStart, drift*j);
+
+            System.out.println("------------------------------------");
+            System.out.println("===> Start Reading");
+            dateEnd = manager.getTuplesFromDB(dateStart);
             manager.writeCSV("temple.csv");
+
             manager.reduceList();
+
             manager.writeCSV("templeReduced.csv");
             //manager.saveARFF(new File("templeReduced.csv"));
 
@@ -74,11 +83,11 @@ public class Driver {
             List<List<Instances>> listAttrSel = new ArrayList<>();
 
             List<Instances> list1 = attSel.cfs_BestFirst(null, null);
-            List<Instances> list2 = attSel.cfs_GreedyStepWise(null, null);
+            //List<Instances> list2 = attSel.cfs_GreedyStepWise(null, null);
             //List<Instances> list3 = attSel.InfoGain_Ranker(null, null);
             //List<Instances> list4 = attSel.PCA_Ranker(null,null);
             listAttrSel.add(list1);
-            listAttrSel.add(list2);
+            //listAttrSel.add(list2);
             //listAttrSel.add(list3);
             //listAttrSel.add(list4);
 
@@ -97,11 +106,11 @@ public class Driver {
             for (int i = 0; i < listAttrSel.size(); i++) {
 
                 List<Instances> datasets = listAttrSel.get(i);
-                classifier.updateClassifier(datasets.get(0), datasets.get(1), attrNames.get(i), date.toString(), DateUtils.addMonths(date, granularity).toString());
-                //System.out.println("J48 is running");
-                //classifier.j48(null);
-                System.out.println("RandomForest is running");
-                classifier.randomForest(null);
+                classifier.updateClassifier(datasets.get(0), datasets.get(1), attrNames.get(i), sdf1.format(dateStart), sdf1.format(dateEnd));
+                System.out.println("J48 is running");
+                classifier.j48(null);
+                //System.out.println("RandomForest is running");
+                //classifier.randomForest(null);
                 //classifier.naiveBayes(null);
             }
         }

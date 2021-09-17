@@ -20,6 +20,8 @@ public class ManageCSV {
     private Double percentageSeverity2 = 0.7;
     private Double percentageSeverity1 = 0.7;
     private Double percentageSeverity3 = 0.8;
+    private int THRESHOLD = 50000;
+    private int granularity = 4;
 
     private ArrayList<String[]> list = new ArrayList<>();
 
@@ -34,9 +36,10 @@ public class ManageCSV {
     }
 
 
-    public void reduceList(){
-
-        //int[] tmpCountSeverity = countSeverity;
+    public void  reduceList(){
+        ArrayList<String[]> prova = new ArrayList<>();
+        prova.addAll(list);
+                //int[] tmpCountSeverity = countSeverity;
         Iterator itr = list.iterator();
         String[] tmp;
         while(itr.hasNext()){
@@ -63,74 +66,111 @@ public class ManageCSV {
                 }
             }
         }
-
+        System.out.println("DEBUG");
     }
 
-    public void getTuplesFromDB(Date dateStart, int granularity) throws IOException {
+    public Date getTuplesFromDB(Date dateStart) throws IOException {
         FileWriter write = new FileWriter("temple.csv");
         CSVWriter csvWriter = new CSVWriter(write);
         write.write(header);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        Date dateEnd = DateUtils.addMonths(dateStart, granularity);
-
+        Date dateEnd = DateUtils.addWeeks(dateStart, granularity);
+        Date tmp = dateStart;
         ArrayList<String> nameFiles = new ArrayList<>();
-        for(int i =0; i<= granularity; i++){
-            Date tmp = DateUtils.addMonths(dateStart, i);
+
+        for(int i =0; tmp.getTime()<=dateEnd.getTime(); i++){
+            tmp = DateUtils.addMonths(dateStart, i);
             String month = String.valueOf(tmp.getMonth()+1);
             String nameFile = String.valueOf("data\\" + (tmp.getYear()+1900) + "-" + month + ".csv");
             nameFiles.add(nameFile);
         }
 
-        CSVReader reader;
+        CSVReader reader = null;
         Date date = new Date();
 
         String[] nextLine;
         initializeCountSeverity();
 
         int count=0;
+        boolean check=false;
 
-        for(int i = 0; i<= granularity; i++){
-            reader = new CSVReader(new FileReader(nameFiles.get(i)));
-            nextLine = reader.readNext(); //read the header from file
-            while ((nextLine = reader.readNext()) != null) {
+        for(int k = 0; (k < 3 && !check); k++ ){
+            for(int i = 0; i< nameFiles.size(); i++) {
+                reader = new CSVReader(new FileReader(nameFiles.get(i)));
+                nextLine = reader.readNext(); //read the header from file
+                while ((nextLine = reader.readNext()) != null) {
 
-                if (count % 10000 == 0)
-                    System.out.println(count);
+                    //if (count % 10000 == 0) System.out.println(count);
 
-                count++;
+                    count++;
 
-                try {
-                    date = sdf.parse(nextLine[2]);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                    try {
+                        date = sdf.parse(nextLine[2]);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    if (date.getTime() >= dateStart.getTime() && date.getTime() <= dateEnd.getTime()) {
+
+                        int severity = Integer.valueOf(nextLine[1]);
+                        if (severity <= 4 && severity >= 1)
+                            countSeverity[severity - 1]++;
+                        nextLine = checkValues(nextLine);
+                        this.list.add(nextLine);
+                        csvWriter.writeNext(nextLine);
+                    }
                 }
-                if (date.getTime() >= dateStart.getTime() && date.getTime() <= dateEnd.getTime()){
 
-                    int severity = Integer.valueOf(nextLine[1]);
-                    if (severity <=4 && severity>=1)
-                        countSeverity[severity-1]++;
-                    nextLine = checkValues(nextLine);
-                    this.list.add(nextLine);
-                    csvWriter.writeNext(nextLine);
-                }
             }
+            /*
+            if (list.size() > 1.5 * THRESHOLD) {
+
+                granularity -=1;// (int) (0.5 * granularity);
+                Date dateLastEnd = dateEnd;
+                dateEnd = DateUtils.addWeeks(dateStart, granularity);
+
+                System.out.println("reduce granularity: " + list.size() + " is over  " + 1.5*THRESHOLD +"\tnew value = " + granularity);
+                System.out.println("Change dateEnd from "+sdf.format(dateLastEnd)+" to " + sdf.format(dateEnd));
+                this.list = new ArrayList<>();
+                count =0;
+                //the granularity cannot go down 1
+                
+                if (granularity < 1)
+                    granularity = 1;
+
+            } else if (list.size() < 0.5 * THRESHOLD && k == 0) {
+                granularity += 1;//(int) (1.5 * granularity);
+                System.out.println("New granularity: " + granularity);
+                check = true;
+
+            } else  {
+                check = true;
+            }
+
+
+             */
+
+            check=true;
+
             reader.close();
 
+
         }
-        System.out.println(count);
+        System.out.println("Range dates from " + sdf.format(dateStart) + " to " + sdf.format(dateEnd));
+        System.out.println("Granularity: " + granularity);
+        System.out.println("Read\t" + count  + " tuples");
+        System.out.println("Extracted\t" + list.size() + " tuples");
+
         System.out.println("Saving files ... ... ... ");
         write.flush();
         write.close();
         //csvWriter.close();
-        countTuples = count-1;
+        countTuples = list.size();
 
         Timer t = new Timer();
         t.startTimer();
 
-        CSVLoader source = new CSVLoader();
-        source.setSource(new File("temple.csv"));
         System.out.println("File .csv saved ");
 
         t.stopTimer();
@@ -151,6 +191,7 @@ public class ManageCSV {
         t.printTimer();
         */
 
+        return dateEnd;
     }
 
     public void getTuples(Date dateStart, int granularity) throws IOException {
@@ -290,5 +331,13 @@ public class ManageCSV {
 
     public int[] getCountSeverity() {
         return countSeverity;
+    }
+
+    public int getGranularity(){
+        return granularity;
+    }
+
+    public void setGranularity(int granularity) {
+        this.granularity = granularity;
     }
 }
