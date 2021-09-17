@@ -7,6 +7,7 @@ public class Result implements Serializable{
     public String endDate;
     public String timeRequired;
     public double[] classSamples;
+    public double totSamples;
     public double accuracy;
     public double[] classTPR;
     public double[] classFPR;
