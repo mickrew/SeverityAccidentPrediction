@@ -43,7 +43,7 @@ public class Driver {
         Timer timer = new Timer();
         timer.startTimer();
         ManageCSV manager = new ManageCSV();
-        Classifier classifier = new Classifier();
+        Classifier classifier = new Classifier("results.txt");
 
         List<String> attrNames = new ArrayList<>();
         attrNames.add("cfs_BestFirst");
@@ -105,7 +105,7 @@ public class Driver {
                 //classifier.naiveBayes(null);
             }
         }
-        Visualizer.printResults(classifier.getResults(),"results.txt");
+        //Visualizer.printResults(classifier.getResults(),"results.txt");
         timer.stopTimer();
         System.out.println("fine " + timer.getTime());
 
