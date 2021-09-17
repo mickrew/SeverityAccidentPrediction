@@ -178,13 +178,15 @@ public class Classifier {
         int index = results.size();
         Result oldR = new Result();
         boolean found = false;
-        while(index > 0){
-            oldR = results.get(index-2);
-            if(oldR.classifier == newR.classifier){
-                found = true;
-                break;
+        if(index >= 2) {
+            while (index > 0) {
+                oldR = results.get(index - 2);
+                if (oldR.classifier == newR.classifier) {
+                    found = true;
+                    break;
+                }
+                index--;
             }
-            index--;
         }
         if(found){
             NumberFormat formatter = new DecimalFormat("#.###");
