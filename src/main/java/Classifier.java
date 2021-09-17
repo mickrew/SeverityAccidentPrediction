@@ -131,7 +131,7 @@ public class Classifier {
         r.classSamples = eval.getClassPriors();
         for(int i=0; i<4; i++) {
             r.classTPR[i] = eval.truePositiveRate(i);
-            r.classTPR[i] = eval.falsePositiveRate(i);
+            r.classFPR[i] = eval.falsePositiveRate(i);
             r.precision[i] = eval.precision(i);
             r.recall[i] = eval.recall(i);
             r.fMeasure[i] = eval.fMeasure(i);
@@ -154,7 +154,7 @@ public class Classifier {
         printWriterIncr = new PrintWriter(fileWriterIncr);
 
         printSingleResult(r);
-        printIncrementalResult(r);
+        //printIncrementalResult(r);
 
         fileWriter.close();
         printWriter.close();
@@ -166,7 +166,7 @@ public class Classifier {
         NumberFormat formatter = new DecimalFormat("#.###");
 
         printWriter.printf("-----------------------------------------------------------------------------------------\n");
-        printWriter.printf("%-12s%-12s%-6s%-20s%-15s%-20s\n", r.startDate,r.endDate,r.classifier, r.attrSel,"Accuracy: "+formatter.format(r.accuracy), "ClassifierTime:"+r.timeRequired);
+        printWriter.printf("%-12s%-12s%-6s%-20s%-20s%-20s\n", r.startDate,r.endDate,r.classifier, r.attrSel,"Accuracy: "+formatter.format(r.accuracy), "ClassifierTime:"+r.timeRequired);
         printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
         for(int i=0; i<4; i++)
             printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", r.classSamples[i], formatter.format(r.classTPR[i]), formatter.format(r.classFPR[i]), formatter.format(r.precision[i]), formatter.format(r.recall[i]), formatter.format(r.fMeasure[i]));
@@ -191,7 +191,7 @@ public class Classifier {
         if(found){
             NumberFormat formatter = new DecimalFormat("#.###");
             printWriterIncr.printf("-----------------------------------------------------------------------------------------\n");
-            printWriterIncr.printf("%-12s%-12s%-6s%-20s%-15s%-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: "+formatter.format((newR.accuracy-oldR.accuracy)), "ClassifierTime:"+newR.timeRequired);
+            printWriterIncr.printf("%-12s%-12s%-6s%-20s%-20s%-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: "+formatter.format((newR.accuracy-oldR.accuracy)), "ClassifierTime:"+newR.timeRequired);
             printWriterIncr.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
             double newSum=0, oldSum=0;
             for(int i=0; i<4; i++) {

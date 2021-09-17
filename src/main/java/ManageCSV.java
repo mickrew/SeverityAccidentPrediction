@@ -132,7 +132,7 @@ public class ManageCSV {
 
                 System.out.println("reduce granularity: " + list.size() + " is over  " + 1.5*THRESHOLD +"\tnew value = " + granularity);
                 System.out.println("Change dateEnd from "+sdf.format(dateLastEnd)+" to " + sdf.format(dateEnd));
-                this.list = new ArrayList<>();
+                this.list.clear();
                 count =0;
                 //the granularity cannot go down 1
                 
@@ -147,11 +147,10 @@ public class ManageCSV {
             } else  {
                 check = true;
             }
-
-
-             */
-
+            */
             check=true;
+
+
 
             reader.close();
 
