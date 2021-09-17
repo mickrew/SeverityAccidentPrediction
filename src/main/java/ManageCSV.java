@@ -21,7 +21,7 @@ public class ManageCSV {
     private Double percentageSeverity1 = 0.7;
     private Double percentageSeverity3 = 0.8;
 
-    ArrayList<String[]> list = new ArrayList<>();
+    private ArrayList<String[]> list = new ArrayList<>();
 
     public ManageCSV() throws FileNotFoundException {
     }
@@ -78,7 +78,8 @@ public class ManageCSV {
         ArrayList<String> nameFiles = new ArrayList<>();
         for(int i =0; i<= granularity; i++){
             Date tmp = DateUtils.addMonths(dateStart, i);
-            String nameFile = String.valueOf("data\\" + (tmp.getYear()+1900) + "-" + String.valueOf(tmp.getMonth()) + ".csv");
+            String month = String.valueOf(tmp.getMonth()+1);
+            String nameFile = String.valueOf("data\\" + (tmp.getYear()+1900) + "-" + month + ".csv");
             nameFiles.add(nameFile);
         }
 

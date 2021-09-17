@@ -1,4 +1,5 @@
 import weka.core.Instances;
+import weka.core.SelectedTag;
 import weka.core.converters.ArffSaver;
 import weka.filters.Filter;
 import weka.filters.MultiFilter;
@@ -19,6 +20,7 @@ public class Preprocessor {
     private static ClassAssigner classAssigner;
     private static Remove removeFilter;
     private static NumericToNominal numericToNominal;
+    private static SortLabels sortLabelsFilter;
 
 
     public static List<Instances> filter (Instances train, Instances test, int maxSpread) throws Exception {
@@ -55,6 +57,9 @@ public class Preprocessor {
         removeFilter.setAttributeIndices("1,3,4,7,8,10-12,17-21,23,38,43,45-47");
         removeFilter.setInputFormat(train);
         */
+
+        sortLabelsFilter = new SortLabels();
+        sortLabelsFilter.setAttributeIndices("first-last");
 
         numericToNominal = new NumericToNominal();
         numericToNominal.setAttributeIndices("1,31");
@@ -94,6 +99,7 @@ public class Preprocessor {
 
         Instances newTrain = Filter.useFilter(train, rmv);
 
+        sortLabelsFilter.setInputFormat(newTrain);
         numericToNominal.setInputFormat(newTrain);
         cleanerFilterTemperature.setInputFormat(newTrain);
         cleanerFilterPressure.setInputFormat(newTrain);
@@ -101,12 +107,14 @@ public class Preprocessor {
         cleanerFilterWindspeed.setInputFormat(newTrain);
         replaceFilter.setInputFormat(newTrain);
 
+
         newTrain = Filter.useFilter(newTrain, numericToNominal);
         newTrain = Filter.useFilter(newTrain, cleanerFilterVisibility);
         newTrain = Filter.useFilter(newTrain, cleanerFilterWindspeed);
         newTrain = Filter.useFilter(newTrain, cleanerFilterPressure);
         newTrain = Filter.useFilter(newTrain, cleanerFilterTemperature);
         newTrain = Filter.useFilter(newTrain, replaceFilter);
+        newTrain = Filter.useFilter(newTrain, sortLabelsFilter);
 
         Instances newTest = Filter.useFilter(test, rmv);
 
@@ -123,6 +131,7 @@ public class Preprocessor {
         newTest = Filter.useFilter(newTest, cleanerFilterPressure);
         newTest = Filter.useFilter(newTest, cleanerFilterTemperature);
         newTest = Filter.useFilter(newTest, replaceFilter);
+        newTest = Filter.useFilter(newTest, sortLabelsFilter);
 
 
         ArffSaver saver = new ArffSaver();
