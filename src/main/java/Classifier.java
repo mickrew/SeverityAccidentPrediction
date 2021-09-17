@@ -24,18 +24,27 @@ public class Classifier {
     private String attrSel; // Attribute Selection applied on Training & Test Sets
     private String startDate;
     private String endDate;
-    private ArrayList<Result> results;
+    private ArrayList<Result> results = new ArrayList<>();;
     Timer timer = new Timer();
     private FileWriter fileWriter;
     private FileWriter fileWriterIncr;
     private PrintWriter printWriter;
     private PrintWriter printWriterIncr;
     private String outputFile;
+    private String incrOutputFile;
 
-    public Classifier(String outputFile){
-        results = new ArrayList<>();
+
+    public Classifier(String outputFile) throws IOException{
         this.outputFile = outputFile;
-
+        incrOutputFile = "Incremental"+outputFile;
+        File f = new File(outputFile);
+        if(f.exists()) {
+            f.delete();
+        }
+        f = new File(incrOutputFile);
+        if(f.exists()) {
+            f.delete();
+        }
     }
 
     /*
@@ -59,7 +68,7 @@ public class Classifier {
     }
 
     public ArrayList<Result> getResults(){ return results;}
-    
+
     public void j48(String options) throws Exception{
         //setClass();
         //building
@@ -79,7 +88,7 @@ public class Classifier {
         ///****/
         addEvalResults(evalTs, "J48", timer.getTime());
     }
-    
+
     public void randomForest(String options) throws Exception{
         //setClass();
         //building
@@ -150,11 +159,11 @@ public class Classifier {
     public void printResult(Result r) throws IOException {
         fileWriter = new FileWriter(outputFile,true);
         printWriter = new PrintWriter(fileWriter);
-        fileWriterIncr = new FileWriter("Incremental"+outputFile,true);
+        fileWriterIncr = new FileWriter(incrOutputFile,true);
         printWriterIncr = new PrintWriter(fileWriterIncr);
 
-        printSingleResult(r);
-        //printIncrementalResult(r);
+        printSingleResult(printWriter, r);
+        printIncrementalResult(printWriterIncr,r);
 
         fileWriter.close();
         printWriter.close();
@@ -162,26 +171,29 @@ public class Classifier {
         printWriterIncr.close();
     }
 
-    private void printSingleResult(Result r){
+    private void printSingleResult(PrintWriter printWriter1, Result r){
         NumberFormat formatter = new DecimalFormat("#.###");
 
-        printWriter.printf("-----------------------------------------------------------------------------------------\n");
-        printWriter.printf("%-12s%-12s%-6s%-20s%-20s%-20s\n", r.startDate,r.endDate,r.classifier, r.attrSel,"Accuracy: "+formatter.format(r.accuracy), "ClassifierTime:"+r.timeRequired);
-        printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
+        printWriter1.printf("-----------------------------------------------------------------------------------------\n");
+        printWriter1.printf("%-12s%-12s%-16s%-20s%-20s%-20s\n", r.startDate,r.endDate,r.classifier, r.attrSel,"Accuracy: "+formatter.format(r.accuracy), "ClassifierTime:"+r.timeRequired);
+        printWriter1.printf("%-60s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
         for(int i=0; i<4; i++)
-            printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", r.classSamples[i], formatter.format(r.classTPR[i]), formatter.format(r.classFPR[i]), formatter.format(r.precision[i]), formatter.format(r.recall[i]), formatter.format(r.fMeasure[i]));
+            printWriter1.printf("%-60s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", r.classSamples[i], formatter.format(r.classTPR[i]), formatter.format(r.classFPR[i]), formatter.format(r.precision[i]), formatter.format(r.recall[i]), formatter.format(r.fMeasure[i]));
 
-        printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:",r.totSamples,formatter.format(r.weightedTPR), formatter.format(r.weightedFPR), formatter.format(r.weightedPrecision), formatter.format(r.weightedRecall), formatter.format(r.weightedFMeasure));
+        printWriter1.printf("%-60s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:",r.totSamples,formatter.format(r.weightedTPR), formatter.format(r.weightedFPR), formatter.format(r.weightedPrecision), formatter.format(r.weightedRecall), formatter.format(r.weightedFMeasure));
     }
 
-    private void printIncrementalResult(Result newR){
+    private void printIncrementalResult(PrintWriter printWriter2,Result newR){
         int index = results.size();
         Result oldR = new Result();
-        boolean found = false;
+        boolean found = false;  // found result of previous time windows computed by same classifier
         if(index >= 2) {
-            while (index > 0) {
-                oldR = results.get(index - 2);
-                if (oldR.classifier == newR.classifier) {
+            index -= 2; // index =index -1-1;
+                        // since indexing counting starts from 1 but .get() starts counting from 0
+                        // and last index corresponds to current results to be compared with previous ones
+            while (index >= 0) {
+                oldR = results.get(index);
+                if (oldR.classifier == newR.classifier && oldR.attrSel == newR.attrSel) {
                     found = true;
                     break;
                 }
@@ -190,20 +202,26 @@ public class Classifier {
         }
         if(found){
             NumberFormat formatter = new DecimalFormat("#.###");
-            printWriterIncr.printf("-----------------------------------------------------------------------------------------\n");
-            printWriterIncr.printf("%-12s%-12s%-6s%-20s%-20s%-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: "+formatter.format((newR.accuracy-oldR.accuracy)), "ClassifierTime:"+newR.timeRequired);
-            printWriterIncr.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
+            printWriter2.printf("-----------------------------------------------------------------------------------------\n");
+            printWriter2.printf("%-12s%-12s%-16s%-20s%-10s%-+10.3f%-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: ",newR.accuracy-oldR.accuracy, "ClassifierTime:"+newR.timeRequired);
+            printWriter2.printf("%-60s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
             double newSum=0, oldSum=0;
             for(int i=0; i<4; i++) {
-                printWriterIncr.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", newR.classSamples[i]-oldR.classSamples[i], formatter.format(newR.classTPR[i]-oldR.classTPR[i]), formatter.format(newR.classFPR[i]-oldR.classFPR[i]), formatter.format(newR.precision[i]-oldR.precision[i]), formatter.format(newR.recall[i]-oldR.recall[i]), formatter.format(newR.fMeasure[i]-oldR.fMeasure[i]));
+                printWriter2.printf("%-60s%-12s%-+10.0f%-+10.3f%-+10.3f%-+10.3f%-+10.3f%-+10.3f\n", "", "Sev" + (i + 1) + ":", newR.classSamples[i]-oldR.classSamples[i], newR.classTPR[i]-oldR.classTPR[i], newR.classFPR[i]-oldR.classFPR[i], newR.precision[i]-oldR.precision[i], newR.recall[i]-oldR.recall[i], newR.fMeasure[i]-oldR.fMeasure[i]);
                 newSum += newR.classSamples[i];
                 oldSum += oldR.classSamples[i];
             }
-            printWriterIncr.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:", newSum-oldSum,formatter.format(newR.weightedTPR-oldR.weightedTPR), formatter.format(newR.weightedFPR-oldR.weightedFPR), formatter.format(newR.weightedPrecision-oldR.weightedPrecision), formatter.format(newR.weightedRecall-oldR.weightedRecall), formatter.format(newR.weightedFMeasure-oldR.weightedFMeasure));
+            printWriter2.printf("%-60s%-12s%-+10.0f%-+10.3f%-+10.3f%-+10.3f%-+10.3f%-+10.3f\n", "", "Weighted:", newSum-oldSum,newR.weightedTPR-oldR.weightedTPR, newR.weightedFPR-oldR.weightedFPR, newR.weightedPrecision-oldR.weightedPrecision, newR.weightedRecall-oldR.weightedRecall, newR.weightedFMeasure-oldR.weightedFMeasure);
         }
         else{
-            printSingleResult(newR);
+            printSingleResult(printWriterIncr, newR);
         }
+    }
+
+    private String addPlus(double value){
+        if(value >= 0)
+            return "+"+value;
+        return ""+value;
     }
 }
 

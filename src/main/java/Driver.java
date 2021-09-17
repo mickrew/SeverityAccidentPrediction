@@ -45,14 +45,6 @@ public class Driver {
         ManageCSV manager = new ManageCSV();
         Classifier classifier = new Classifier("results.txt");
 
-        File f = new File("results.txt");
-        if(f.exists()) {
-            f.delete();
-        }
-        f = new File("Incrementalresults.txt");
-        if(f.exists()) {
-            f.delete();
-        }
 
         List<String> attrNames = new ArrayList<>();
         attrNames.add("cfs_BestFirst");
@@ -64,16 +56,20 @@ public class Driver {
         String dateString = "2020-01-01 00:00:00";
         Date dateStart = sdf.parse(dateString);
         Date dateEnd;
-        int drift =1;
-        manager.setGranularity(4);
+        /*************/
+        final int DRIFT =1;
+        final int GRANULARITY = 4;
+        final int NUM_ITERATION = 2;
+        /*************/
+        manager.setGranularity(GRANULARITY);
         int lastGranularity= manager.getGranularity();
 
-        for (int j= 0; j<5; j++) {
+        for (int j= 0; j<NUM_ITERATION; j++) {
             lastGranularity= manager.getGranularity();
 
-            dateStart = DateUtils.addWeeks(dateStart, drift*j);
+            dateStart = DateUtils.addWeeks(dateStart, DRIFT*j);
 
-            System.out.println("------------------------------------");
+            System.out.println("==========================================");
             System.out.println("===> Start Reading");
             dateEnd = manager.getTuplesFromDB(dateStart);
             manager.writeCSV("temple.csv");
@@ -92,11 +88,11 @@ public class Driver {
             List<List<Instances>> listAttrSel = new ArrayList<>();
 
             List<Instances> list1 = attSel.cfs_BestFirst(null, null);
-            List<Instances> list2 = attSel.cfs_GreedyStepWise(null, null);
+            //List<Instances> list2 = attSel.cfs_GreedyStepWise(null, null);
             //List<Instances> list3 = attSel.InfoGain_Ranker(null, null);
             //List<Instances> list4 = attSel.PCA_Ranker(null,null);
             listAttrSel.add(list1);
-            listAttrSel.add(list2);
+            //listAttrSel.add(list2);
             //listAttrSel.add(list3);
             //listAttrSel.add(list4);
 
