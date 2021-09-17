@@ -9,8 +9,11 @@ import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,15 +26,24 @@ public class Classifier {
     private String endDate;
     private ArrayList<Result> results;
     Timer timer = new Timer();
+    private FileWriter fileWriter;
+    private FileWriter fileWriterIncr;
+    private PrintWriter printWriter;
+    private PrintWriter printWriterIncr;
+    private String outputFile;
 
-    public Classifier(){
+    public Classifier(String outputFile){
         results = new ArrayList<>();
+        this.outputFile = outputFile;
+
     }
 
-    public Classifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate){
-        results = new ArrayList<>();
+    /*
+    public Classifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate, String outputFile){
+        this(outputFile);
         updateClassifier(trainingSet, testSet, attrSelName, startDate, endDate);
     }
+    */
 
     public void updateClassifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate){
         train = trainingSet;
@@ -114,9 +126,11 @@ public class Classifier {
         r.startDate = startDate;
         r.endDate = endDate;
         r.timeRequired = time;
+        r.accuracy = eval.pctCorrect();
+        r.totSamples = eval.numInstances();
         r.classSamples = eval.getClassPriors();
         for(int i=0; i<4; i++) {
-            r.classTPR[i] = eval.truePositiveRate(i );
+            r.classTPR[i] = eval.truePositiveRate(i);
             r.classTPR[i] = eval.falsePositiveRate(i);
             r.precision[i] = eval.precision(i);
             r.recall[i] = eval.recall(i);
@@ -130,6 +144,64 @@ public class Classifier {
         r.summaryEval = eval.toSummaryString();
         r.confusionMatrix = eval.toMatrixString();
         results.add(r);
+        printResult(r);
+    }
+
+    public void printResult(Result r) throws IOException {
+        fileWriter = new FileWriter(outputFile,true);
+        printWriter = new PrintWriter(fileWriter);
+        fileWriterIncr = new FileWriter("Incremental"+outputFile,true);
+        printWriterIncr = new PrintWriter(fileWriterIncr);
+
+        printSingleResult(r);
+        printIncrementalResult(r);
+
+        fileWriter.close();
+        printWriter.close();
+        fileWriterIncr.close();
+        printWriterIncr.close();
+    }
+
+    private void printSingleResult(Result r){
+        NumberFormat formatter = new DecimalFormat("#.###");
+
+        printWriter.printf("-----------------------------------------------------------------------------------------\n");
+        printWriter.printf("%-12s%-12s%-6s%-20s%-15s%-20s\n", r.startDate,r.endDate,r.classifier, r.attrSel,"Accuracy: "+formatter.format(r.accuracy), "ClassifierTime:"+r.timeRequired);
+        printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
+        for(int i=0; i<4; i++)
+            printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", r.classSamples[i], formatter.format(r.classTPR[i]), formatter.format(r.classFPR[i]), formatter.format(r.precision[i]), formatter.format(r.recall[i]), formatter.format(r.fMeasure[i]));
+
+        printWriter.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:",r.totSamples,formatter.format(r.weightedTPR), formatter.format(r.weightedFPR), formatter.format(r.weightedPrecision), formatter.format(r.weightedRecall), formatter.format(r.weightedFMeasure));
+    }
+
+    private void printIncrementalResult(Result newR){
+        int index = results.size();
+        Result oldR = new Result();
+        boolean found = false;
+        while(index > 0){
+            oldR = results.get(index-2);
+            if(oldR.classifier == newR.classifier){
+                found = true;
+                break;
+            }
+            index--;
+        }
+        if(found){
+            NumberFormat formatter = new DecimalFormat("#.###");
+            printWriterIncr.printf("-----------------------------------------------------------------------------------------\n");
+            printWriterIncr.printf("%-12s%-12s%-6s%-20s%-15s%-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: "+formatter.format((newR.accuracy-oldR.accuracy)), "ClassifierTime:"+newR.timeRequired);
+            printWriterIncr.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
+            double newSum=0, oldSum=0;
+            for(int i=0; i<4; i++) {
+                printWriterIncr.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", newR.classSamples[i]-oldR.classSamples[i], formatter.format(newR.classTPR[i]-oldR.classTPR[i]), formatter.format(newR.classFPR[i]-oldR.classFPR[i]), formatter.format(newR.precision[i]-oldR.precision[i]), formatter.format(newR.recall[i]-oldR.recall[i]), formatter.format(newR.fMeasure[i]-oldR.fMeasure[i]));
+                newSum += newR.classSamples[i];
+                oldSum += oldR.classSamples[i];
+            }
+            printWriterIncr.printf("%-50s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:", newSum-oldSum,formatter.format(newR.weightedTPR-oldR.weightedTPR), formatter.format(newR.weightedFPR-oldR.weightedFPR), formatter.format(newR.weightedPrecision-oldR.weightedPrecision), formatter.format(newR.weightedRecall-oldR.weightedRecall), formatter.format(newR.weightedFMeasure-oldR.weightedFMeasure));
+        }
+        else{
+            printSingleResult(newR);
+        }
     }
 }
 
