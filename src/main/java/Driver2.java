@@ -121,7 +121,7 @@ public class Driver2 {
             }
         }
         timer.stopTimer();
-        System.out.println("\n Application time: " + timer.getTime()+"s");
+        System.out.println("\nApplication time: " + timer.getTime()+"s");
 
     }
 }

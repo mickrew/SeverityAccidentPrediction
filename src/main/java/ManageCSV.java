@@ -37,8 +37,11 @@ public class ManageCSV {
 
 
     public void  reduceList(){
+        /* For testing
         ArrayList<String[]> prova = new ArrayList<>();
         prova.addAll(list);
+        */
+
                 //int[] tmpCountSeverity = countSeverity;
         Iterator itr = list.iterator();
         String[] tmp;
@@ -66,7 +69,7 @@ public class ManageCSV {
                 }
             }
         }
-        System.out.println("DEBUG");
+        //System.out.println("DEBUG");
     }
 
     public Date getTuplesFromDB(Date dateStart) throws IOException {
@@ -311,8 +314,6 @@ public class ManageCSV {
         saver.setFile(new File("temple.arff"));
         saver.writeBatch();
     }
-
-
 
 
 
