@@ -37,8 +37,11 @@ public class ManageCSV {
 
 
     public void  reduceList(){
+        /* For testing
         ArrayList<String[]> prova = new ArrayList<>();
         prova.addAll(list);
+        */
+
                 //int[] tmpCountSeverity = countSeverity;
         Iterator itr = list.iterator();
         String[] tmp;
@@ -66,7 +69,8 @@ public class ManageCSV {
                 }
             }
         }
-        System.out.println("DEBUG");
+        System.out.println("Reduced to\t" + list.size() + " tuples");
+        //System.out.println("DEBUG");
     }
 
     public Date getTuplesFromDB(Date dateStart) throws IOException {
@@ -75,6 +79,7 @@ public class ManageCSV {
         write.write(header);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 
         Date dateEnd = DateUtils.addWeeks(dateStart, granularity);
         Date tmp = dateStart;
@@ -156,12 +161,12 @@ public class ManageCSV {
 
 
         }
-        System.out.println("Range dates from " + sdf.format(dateStart) + " to " + sdf.format(dateEnd));
+        System.out.println("Range dates from " + sdf1.format(dateStart) + " to " + sdf1.format(dateEnd));
         System.out.println("Granularity: " + granularity);
         System.out.println("Read\t" + count  + " tuples");
         System.out.println("Extracted\t" + list.size() + " tuples");
 
-        System.out.println("Saving files ... ... ... ");
+        //System.out.println("Saving files ... ... ... ");
         write.flush();
         write.close();
         //csvWriter.close();
@@ -173,7 +178,7 @@ public class ManageCSV {
         System.out.println("File .csv saved ");
 
         t.stopTimer();
-        t.printTimer();
+        //t.printTimer();
 
         /*
         t.startTimer();
@@ -311,8 +316,6 @@ public class ManageCSV {
         saver.setFile(new File("temple.arff"));
         saver.writeBatch();
     }
-
-
 
 
 

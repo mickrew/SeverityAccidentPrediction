@@ -134,7 +134,7 @@ public class Preprocessor {
         newTest = Filter.useFilter(newTest, cleanerFilterTemperature);
         newTest = Filter.useFilter(newTest, replaceFilter);
         newTest = Filter.useFilter(newTest, sortLabelsFilter);
-
+        */
 
         ArffSaver saver = new ArffSaver();
         saver.setInstances(newTrain);
