@@ -130,7 +130,8 @@ public class Classifier {
     }
 
     private void addEvalResults(Evaluation eval, String classifier, String time) throws Exception{
-        Result r = new Result(classifier);
+        Result r = new Result();
+        r.classifier = classifier;
         r.attrSel = attrSel;
         r.startDate = startDate;
         r.endDate = endDate;

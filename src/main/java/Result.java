@@ -22,6 +22,7 @@ public class Result implements Serializable{
     public String summaryEval;
     public String confusionMatrix;
 
+
     public Result(){
         classSamples = new double[4];
         classTPR = new double[4];
@@ -31,15 +32,35 @@ public class Result implements Serializable{
         fMeasure = new double[4];
     }
 
-    public Result(String classifierName){
-        classifier = classifierName;
-        classSamples = new double[4];
-        classTPR = new double[4];
-        classFPR = new double[4];
-        precision = new double[4];
-        recall = new double[4];
-        fMeasure = new double[4];
+    public Result(String classifierName, String attrSelName, String startDate, String endDate, String classifierTime,
+                  double[] classSamples, double totSamples, double accuracy, double[] classTPR, double[] classFPR,
+                  double[] precision, double[] recall, double[] fMeasure, double weightedTPR, double weightedFPR,
+                  double weightedPrecision, double weightedRecall, double weightedFMeasure,
+                  String summaryEval, String confusionMatrix){
+        this();
+        this.classifier = classifierName;
+        this.attrSel = attrSelName;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.timeRequired = classifierTime;
+        this.classSamples = classSamples;
+        this.totSamples = totSamples;
+        this.accuracy = accuracy;
+        this.classTPR = classTPR;
+        this.classFPR = classFPR;
+        this.precision = precision;
+        this.recall = recall;
+        this.fMeasure = fMeasure;
+        this.weightedTPR = weightedTPR;
+        this.weightedFPR = weightedFPR;
+        this.weightedPrecision = weightedPrecision;
+        this.weightedRecall = weightedRecall;
+        this.weightedFMeasure = weightedFMeasure;
+        this.summaryEval = summaryEval;
+        this.confusionMatrix = confusionMatrix;
     }
+
+
 
     public String getResult(){
         return summaryEval;
