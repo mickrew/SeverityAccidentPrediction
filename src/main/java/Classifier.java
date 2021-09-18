@@ -1,5 +1,3 @@
-package Utility;
-
 import weka.attributeSelection.*;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
@@ -50,7 +48,7 @@ public class Classifier {
     }
 
     /*
-    public Utility.Classifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate, String outputFile){
+    public Classifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate, String outputFile){
         this(outputFile);
         updateClassifier(trainingSet, testSet, attrSelName, startDate, endDate);
     }

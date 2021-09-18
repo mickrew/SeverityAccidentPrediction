@@ -1,5 +1,3 @@
-package Utility;
-
 import weka.attributeSelection.*;
 import weka.core.Instances;
 import weka.filters.Filter;

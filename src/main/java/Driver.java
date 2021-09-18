@@ -1,6 +1,3 @@
-import Utility.AttributeSelection;
-
-
 import org.apache.commons.lang3.time.DateUtils;
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
@@ -8,7 +5,7 @@ import weka.core.converters.CSVLoader;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Timer;
+
 
 public class Driver {
     public static List<Instances> loadDataSplitTrainTest() throws Exception {
@@ -44,7 +41,7 @@ public class Driver {
         Timer timer = new Timer();
         timer.startTimer();
         ManageCSV manager = new ManageCSV();
-        //Classifier classifier = new Classifier("results.txt");
+        Classifier classifier = new Classifier("results.txt");
 
 
         List<String> attrNames = new ArrayList<>();

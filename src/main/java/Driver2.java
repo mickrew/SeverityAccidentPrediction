@@ -99,10 +99,10 @@ public class Driver2 {
 
             List<String> classifiersNames = new ArrayList<>();
             List<String> attrSelectionNames = new ArrayList<>();
-            /** 1 Utility.Classifier **/
+            /** 1 Classifier **/
             classifiersNames.add("J48");
             attrSelectionNames.add("CFS_BESTFIRST");
-            /** 2 Utility.Classifier **/
+            /** 2 Classifier **/
             classifiersNames.add("RANDOM_FOREST");
             attrSelectionNames.add("CFS_GREEDYSTEPWISE");
 
