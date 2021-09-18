@@ -5,6 +5,8 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,10 +17,10 @@ public class Driver2 {
     private final static double PERCENTAGESPLIT = 100.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
     private final static int DRIFT =1;
-    private final static int NUM_ITERATION = 48;
-    private final static String dateString = "2016-02-01 00:00:00";
+    private final static int NUM_ITERATION = 13;
+    private final static String dateString = "2018-01-01 00:00:00";
 
-    private static boolean CROSS_VALIDATION = true;
+    private static boolean CROSS_VALIDATION = false;
     private static int GRANULARITY = 4;
     /*************/
 
@@ -56,7 +58,9 @@ public class Driver2 {
         Timer timer = new Timer();
         timer.startTimer();
         ManageCSV manager = new ManageCSV();
-        Visualizer visualizer = new Visualizer("results.txt");
+
+        String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION)+ "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + "_" + (CROSS_VALIDATION?"CR":"" ) + ".txt";
+        Visualizer visualizer = new Visualizer("results\\" +nameFile);
 
         List<String> attrNames = new ArrayList<>();
         attrNames.add("cfs_BestFirst");
@@ -68,14 +72,17 @@ public class Driver2 {
         Date dateStart = sdf.parse(dateString);
         Date dateEnd;
 
-
+        ArrayList<Integer> numTuples = new ArrayList<>();
         manager.setGranularity(GRANULARITY);
-        int lastGranularity= manager.getGranularity();
+        //int lastGranularity= manager.getGranularity();
 
         for (int j= 0; j<NUM_ITERATION; j++) {
-            lastGranularity= manager.getGranularity();
+            System.out.println("==========================================");
+            System.out.println("Num Iteration: " + Integer.valueOf(j+1) + "/" + Integer.valueOf(NUM_ITERATION));
 
-            dateStart = DateUtils.addWeeks(dateStart, DRIFT*j);
+            //lastGranularity= manager.getGranularity();
+
+            dateStart = DateUtils.addWeeks(sdf.parse(dateString), DRIFT*j);
 
             System.out.println("==========================================");
             System.out.println("===> Start Reading");
@@ -86,6 +93,8 @@ public class Driver2 {
 
             manager.writeCSV("templeReduced.csv");
             //manager.saveARFF(new File("templeReduced.csv"));
+
+            numTuples.add(manager.getCountTuples());
 
             List<Instances> dataNotFiltered = loadDataSplitTrainTest(PERCENTAGESPLIT);
 
@@ -100,8 +109,8 @@ public class Driver2 {
             List<String> classifiersNames = new ArrayList<>();
             List<String> attrSelectionNames = new ArrayList<>();
             /** 1 Classifier **/
-            classifiersNames.add("J48");
-            attrSelectionNames.add("CFS_BESTFIRST");
+            //classifiersNames.add("J48");
+            //attrSelectionNames.add("CFS_BESTFIRST");
             /** 2 Classifier **/
             classifiersNames.add("RANDOM_FOREST");
             attrSelectionNames.add("CFS_GREEDYSTEPWISE");
@@ -114,14 +123,32 @@ public class Driver2 {
             for(int i=0; i < classifiersNames.size(); i++){
                 AttrSelectedClassifier classifier = new AttrSelectedClassifier(dataFiltered,CROSS_VALIDATION,
                                                     sdf1.format(dateStart), sdf1.format(dateEnd));
+                System.out.println(classifiersNames.get(i)+" is running");
                 Result r = classifier.start(attrSelectionNames.get(i),null, null,
                                             classifiersNames.get(i),null);
-                System.out.println(classifiersNames.get(i)+" is running");
+
                 visualizer.addResult(r);
             }
         }
-        timer.stopTimer();
-        System.out.println("\nApplication time: " + timer.getTime()+"s");
 
+        Integer sum = 0;
+        for(Integer i : numTuples)
+            sum += i;
+
+        System.out.println("\nMean of tuples taken: " + sum);
+
+        timer.stopTimer();
+        NumberFormat formatter = new DecimalFormat("##");
+        /*
+        Double totalSecs =  Double.parseDouble(timer.getTime());
+        Double minutes = (totalSecs % 3600) / 60;
+        Double seconds = totalSecs % 60;
+
+
+        String timeString = String.format("%02d:%02d", minutes, seconds);
+        System.out.println("\nApplication time: " + timeString);
+        */
+
+        System.out.println("\n Application time: " + timer.getTime()+"s");
     }
 }
