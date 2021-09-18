@@ -11,7 +11,7 @@ import java.util.List;
 
 
 public class IncrClassifier {
-    private static List<IncrClassifier> incrClassifier = new ArrayList<>();
+    //private static List<IncrClassifier> incrClassifier = new ArrayList<>();
     private String startDate;
     private String endDate;
     private String classifierName;
@@ -26,7 +26,8 @@ public class IncrClassifier {
     private HoeffdingTree hoeffdingTree;
 
 
-    public IncrClassifier(String classifierName, String classifierOptions) throws Exception {
+    public IncrClassifier(String classifierName, String classifierOptions){
+        try{
         /**============== Instantiation of chosen Incremental Classifier ==============**/
         this.classifierName = classifierName;
         switch (classifierName) {
@@ -37,7 +38,7 @@ public class IncrClassifier {
                 updateableClassifier = nBayesUpdatable;
                 classifierInterface = nBayesUpdatable;
                 break;
-
+/*
             case "HOEFFDING_TREE":
                 hoeffdingTree = new HoeffdingTree();
                 if (classifierOptions != null)
@@ -45,29 +46,32 @@ public class IncrClassifier {
                 updateableClassifier = hoeffdingTree;
                 classifierInterface = hoeffdingTree;
                 break;
+*/
             default:
                 System.err.println("Error: Classifier String Parameter is not correctly defined");
                 System.exit(1);
         }
+        }catch(Exception e){
+            System.err.println("Error: Exception thrown at IncrClassifier constructor");
+            System.exit(1);
+        }
     }
-
+/*
     public static IncrClassifier getInstance(String classifierName, String classifierOptions) throws Exception{
         /**============== already built classifier: to be updated ==============**/
-        for(IncrClassifier currentClassifier: incrClassifier){
+/*        for(IncrClassifier currentClassifier: incrClassifier){
             if(currentClassifier.classifierName == classifierName)
                 return currentClassifier;
         }
         /**============== First definition ==============**/
-        IncrClassifier newClassifier = new IncrClassifier(classifierName, classifierOptions);
+/*        IncrClassifier newClassifier = new IncrClassifier(classifierName, classifierOptions);
         incrClassifier.add(newClassifier);
         return newClassifier;
-    }
+    }*/
 
     public Result update(List<Instances> datasets, String startDate, String endDate) throws Exception {
         this.startDate = startDate;
         this.endDate = endDate;
-        for(Instances dataset: datasets)
-            dataset.setClassIndex(0);
 
         timer.startTimer();
         /**============== First Model Build ==============**/

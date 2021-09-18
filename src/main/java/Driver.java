@@ -1,4 +1,9 @@
 import org.apache.commons.lang3.time.DateUtils;
+import weka.classifiers.Evaluation;
+import weka.classifiers.UpdateableClassifier;
+import weka.classifiers.bayes.NaiveBayesUpdateable;
+import weka.classifiers.trees.HoeffdingTree;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -29,6 +34,12 @@ public class Driver {
     private static boolean CROSS_VALIDATION = true;
     private static int GRANULARITY = 4;
     /*************/
+
+    private static boolean prova = true;
+    private static NaiveBayesUpdateable nBayesUpdatable = new NaiveBayesUpdateable();
+    private static UpdateableClassifier updateableClassifier = nBayesUpdatable;
+    private static weka.classifiers.Classifier classifierInterface = nBayesUpdatable;
+    private static IncrClassifier incrNaiveBayes = new IncrClassifier("NAIVE_BAYES_UPDATABLE",null);
 
     public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
         ManageCSV manager = new ManageCSV();
@@ -61,11 +72,11 @@ public class Driver {
 
         String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION)+ "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + "_" + ".txt";
         Visualizer incrVisualizer = new Visualizer("results\\" +"updateable"+nameFile);
-        List<String> attrNames = new ArrayList<>();
+        /*List<String> attrNames = new ArrayList<>();
         attrNames.add("cfs_BestFirst");
         attrNames.add("cfs_GreedyStepWise");
         attrNames.add("InfoGain_Ranker");
-
+        */
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
         Date dateStart = sdf.parse(dateString);
@@ -103,16 +114,35 @@ public class Driver {
             System.out.println("------------------------------------");
             System.out.println("===> Start Classifying");
 
-            IncrClassifier incrNaiveBayes = IncrClassifier.getInstance("NAIVE_BAYES_UPDATABLE",null);
-            IncrClassifier incrHoeffdingTree = IncrClassifier.getInstance("HOEFFDING_TREE",null);
+            for(Instances dataset: dataFiltered)
+                dataset.setClassIndex(0);
+
+            //IncrClassifier incrNaiveBayes = IncrClassifier.getInstance("NAIVE_BAYES_UPDATABLE",null);
+            //IncrClassifier incrHoeffdingTree = IncrClassifier.getInstance("HOEFFDING_TREE",null);
 
             System.out.println("NaiveBayesUpdatable is running (updating its model)");
             Result naiveBayesResult = incrNaiveBayes.update(dataFiltered,sdf1.format(dateStart),sdf1.format(dateEnd));
             System.out.println("HoeffdingTree is running (updating its model)");
-            Result hoeffdingTreeResult = incrNaiveBayes.update(dataFiltered,sdf1.format(dateStart),sdf1.format(dateEnd));
+            //Result hoeffdingTreeResult = incrHoeffdingTree.update(dataFiltered,sdf1.format(dateStart),sdf1.format(dateEnd));
             incrVisualizer.addResult(naiveBayesResult);
-            incrVisualizer.addResult(hoeffdingTreeResult);
+            //incrVisualizer.addResult(hoeffdingTreeResult);
 
+
+
+
+
+            /*
+            if(prova==true){
+                classifierInterface.buildClassifier(dataFiltered.get(0));
+            }else
+                for (Instance sample : dataFiltered.get(0))
+                    updateableClassifier.updateClassifier(sample);
+                    //nBayesUpdatable.updateClassifier(sample);
+            Evaluation evaluation = new Evaluation(dataFiltered.get(0));
+            evaluation.evaluateModel(classifierInterface, dataFiltered.get(1));
+            Result r = Visualizer.evalResult(evaluation, "NAIVE_BAYES_UPDATABLE", null, "", "startDate", "endDate");
+            incrVisualizer.addResult(r);
+            */
         }
         Integer sum = 0;
         for(Integer i : numTuples)
