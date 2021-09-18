@@ -1,3 +1,5 @@
+package Utility;
+
 import weka.attributeSelection.*;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
@@ -48,7 +50,7 @@ public class Classifier {
     }
 
     /*
-    public Classifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate, String outputFile){
+    public Utility.Classifier(Instances trainingSet, Instances testSet, String attrSelName, String startDate, String endDate, String outputFile){
         this(outputFile);
         updateClassifier(trainingSet, testSet, attrSelName, startDate, endDate);
     }
@@ -184,7 +186,7 @@ public class Classifier {
         printWriter1.printf("%-60s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Weighted:",r.totSamples,formatter.format(r.weightedTPR), formatter.format(r.weightedFPR), formatter.format(r.weightedPrecision), formatter.format(r.weightedRecall), formatter.format(r.weightedFMeasure));
     }
 
-    private void printIncrementalResult(PrintWriter printWriter2,Result newR){
+    private void printIncrementalResult(PrintWriter printWriter2, Result newR){
         int index = results.size();
         Result oldR = new Result();
         boolean found = false;  // found result of previous time windows computed by same classifier

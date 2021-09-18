@@ -95,14 +95,14 @@ public class Driver2 {
 
 
             System.out.println("------------------------------------");
-            System.out.println("===> Start Classifing");
+            System.out.println("===> Start Classifying");
 
             List<String> classifiersNames = new ArrayList<>();
             List<String> attrSelectionNames = new ArrayList<>();
-            /** 1 Classifier **/
+            /** 1 Utility.Classifier **/
             classifiersNames.add("J48");
             attrSelectionNames.add("CFS_BESTFIRST");
-            /** 2 Classifier **/
+            /** 2 Utility.Classifier **/
             classifiersNames.add("RANDOM_FOREST");
             attrSelectionNames.add("CFS_GREEDYSTEPWISE");
 

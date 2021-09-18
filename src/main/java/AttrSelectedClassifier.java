@@ -72,7 +72,7 @@ public class AttrSelectedClassifier {
                 naiveBayes(classifierOptions);
                 break;
             default:
-                System.err.println("Error: Classifier String Parameter is not correctly defined");
+                System.err.println("Error: Utility.Classifier String Parameter is not correctly defined");
                 System.exit(1);
         }
 
