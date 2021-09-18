@@ -10,7 +10,19 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Driver2 {
-    public static List<Instances> loadDataSplitTrainTest() throws Exception {
+
+    /*************/
+    private final static double PERCENTAGESPLIT = 100.0;
+    private final static int randomSeed = (int)System.currentTimeMillis();
+    private final static int DRIFT =1;
+    private final static int NUM_ITERATION = 48;
+    private final static String dateString = "2016-02-01 00:00:00";
+
+    private static boolean CROSS_VALIDATION = true;
+    private static int GRANULARITY = 4;
+    /*************/
+
+    public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
 
         ManageCSV manager = new ManageCSV();
         CSVLoader source = new CSVLoader();
@@ -21,9 +33,10 @@ public class Driver2 {
         source.setStringAttributes("10");
         source.setSource(new File("templeReduced.csv"));
 
-        double trainPercentage = 66.0;
-        int randomSeed = 1;
+
         final Instances dataSet = source.getDataSet();
+
+
         dataSet.randomize(new Random(randomSeed));
 
         int trainSize = (int)Math.round(dataSet.numInstances() * trainPercentage / 100);
@@ -52,15 +65,10 @@ public class Driver2 {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-        String dateString = "2020-01-01 00:00:00";
         Date dateStart = sdf.parse(dateString);
         Date dateEnd;
-        /*************/
-        final int DRIFT =1;
-        final int GRANULARITY = 4;
-        final int NUM_ITERATION = 2;
-        final boolean CROSS_VALIDATION = false;
-        /*************/
+
+
         manager.setGranularity(GRANULARITY);
         int lastGranularity= manager.getGranularity();
 
@@ -79,7 +87,7 @@ public class Driver2 {
             manager.writeCSV("templeReduced.csv");
             //manager.saveARFF(new File("templeReduced.csv"));
 
-            List<Instances> dataNotFiltered = loadDataSplitTrainTest();
+            List<Instances> dataNotFiltered = loadDataSplitTrainTest(PERCENTAGESPLIT);
 
             int[] numInstancesSeverity = manager.getCountSeverity();
             List<Instances> dataFiltered = Preprocessor.filter(dataNotFiltered.get(0), dataNotFiltered.get(1), numInstancesSeverity[3]);
@@ -98,7 +106,11 @@ public class Driver2 {
             classifiersNames.add("RANDOM_FOREST");
             attrSelectionNames.add("CFS_GREEDYSTEPWISE");
 
-            assert classifiersNames.size() == attrSelectionNames.size() : "Error: classifier definition is wrong!";
+            if(classifiersNames.size() != attrSelectionNames.size()){
+                System.err.println("Error: classifier definition is wrong!");
+                System.exit(1);
+            }
+
             for(int i=0; i < classifiersNames.size(); i++){
                 AttrSelectedClassifier classifier = new AttrSelectedClassifier(dataFiltered,CROSS_VALIDATION,
                                                     sdf1.format(dateStart), sdf1.format(dateEnd));
@@ -109,7 +121,7 @@ public class Driver2 {
             }
         }
         timer.stopTimer();
-        System.out.println("fine " + timer.getTime());
+        System.out.println("\n Application time: " + timer.getTime()+"s");
 
     }
 }

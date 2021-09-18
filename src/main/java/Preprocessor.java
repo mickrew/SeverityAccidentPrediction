@@ -118,12 +118,14 @@ public class Preprocessor {
 
         Instances newTest = Filter.useFilter(test, rmv);
 
+        /*
         numericToNominal.setInputFormat(newTest);
         cleanerFilterTemperature.setInputFormat(newTest);
         cleanerFilterPressure.setInputFormat(newTest);
         cleanerFilterVisibility.setInputFormat(newTest);
         cleanerFilterWindspeed.setInputFormat(newTest);
         replaceFilter.setInputFormat(newTest);
+         */
 
         newTest = Filter.useFilter(newTest, numericToNominal);
         newTest = Filter.useFilter(newTest, cleanerFilterVisibility);

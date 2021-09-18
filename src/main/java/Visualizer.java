@@ -54,7 +54,7 @@ public class Visualizer{
         NumberFormat formatter = new DecimalFormat("#.###");
 
         printWriter1.printf("-----------------------------------------------------------------------------------------\n");
-        printWriter1.printf("%-12s%-12s%-16s%-20s%-20s%-20s\n", r.startDate,r.endDate,r.classifier, r.attrSel,"Accuracy: "+formatter.format(r.accuracy), "ClassifierTime:"+r.timeRequired);
+        printWriter1.printf("%-12s%-12s%-16s%-20s%-20s%-20s\n", r.startDate,r.endDate,r.classifier, r.attrSel,"Accuracy: "+formatter.format(r.accuracy)+"%", "ClassifierTime: "+r.timeRequired + "s");
         printWriter1.printf("%-60s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
         for(int i=0; i<4; i++)
             printWriter1.printf("%-60s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n", "", "Sev" + (i + 1) + ":", r.classSamples[i], formatter.format(r.classTPR[i]), formatter.format(r.classFPR[i]), formatter.format(r.precision[i]), formatter.format(r.recall[i]), formatter.format(r.fMeasure[i]));
@@ -82,7 +82,7 @@ public class Visualizer{
         if(found){
             NumberFormat formatter = new DecimalFormat("#.###");
             printWriter2.printf("-----------------------------------------------------------------------------------------\n");
-            printWriter2.printf("%-12s%-12s%-16s%-20s%-10s%-+10.3f%-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: ",newR.accuracy-oldR.accuracy, "ClassifierTime:"+newR.timeRequired);
+            printWriter2.printf("%-12s%-12s%-16s%-20s%-10s%-+10.3f%-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: ",(newR.accuracy-oldR.accuracy), "ClassifierTime: "+newR.timeRequired +"s");
             printWriter2.printf("%-60s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
             double newSum=0, oldSum=0;
             for(int i=0; i<4; i++) {
