@@ -82,7 +82,7 @@ public class Visualizer{
         if(found){
             NumberFormat formatter = new DecimalFormat("#.###");
             printWriter2.printf("-----------------------------------------------------------------------------------------\n");
-            printWriter2.printf("%-12s%-12s%-16s%-20s%-10s%-+10.3f%-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: ",(newR.accuracy-oldR.accuracy), "ClassifierTime: "+newR.timeRequired +"s");
+            printWriter2.printf("%-12s%-12s%-16s%-20s%-10s%-+7.3f%s  %-20s\n", newR.startDate,newR.endDate,newR.classifier, newR.attrSel,"Accuracy: ",(newR.accuracy-oldR.accuracy),"%", "ClassifierTime: "+newR.timeRequired +"s");
             printWriter2.printf("%-60s%-12s%-10s%-10s%-10s%-10s%-10s%-10s\n","", "Per Class:","#Samples", "TPR", "FPR", "Precision", "Recall","F-measure");
             double newSum=0, oldSum=0;
             for(int i=0; i<4; i++) {

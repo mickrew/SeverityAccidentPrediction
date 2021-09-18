@@ -12,10 +12,10 @@ import java.util.*;
 public class Driver2 {
 
     /*************/
-    private final static double PERCENTAGESPLIT = 100.0;
+    private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
     private final static int DRIFT =1;
-    private final static int NUM_ITERATION = 48;
+    private final static int NUM_ITERATION = 2;
     private final static String dateString = "2016-02-01 00:00:00";
 
     private static boolean CROSS_VALIDATION = true;
@@ -53,6 +53,8 @@ public class Driver2 {
     }
 
     public static void main(String[] args) throws Exception {
+        if(CROSS_VALIDATION)
+            PERCENTAGESPLIT = 100.0;
         Timer timer = new Timer();
         timer.startTimer();
         ManageCSV manager = new ManageCSV();
