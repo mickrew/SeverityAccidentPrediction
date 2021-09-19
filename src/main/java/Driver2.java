@@ -17,11 +17,11 @@ public class Driver2 {
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
     private final static int DRIFT =1;
-    private final static int NUM_ITERATION = 2;
-    private final static String dateString = "2016-02-01 00:00:00";
+    private final static int NUM_ITERATION = 5;
+    private final static String dateString = "2020-02-01 00:00:00";
 
-    private static boolean CROSS_VALIDATION = true;
-    private static int GRANULARITY = 4;
+    private static boolean CROSS_VALIDATION = false;
+    private static int GRANULARITY = 10;
     /*************/
 
     public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
@@ -61,7 +61,7 @@ public class Driver2 {
         timer.startTimer();
         ManageCSV manager = new ManageCSV();
 
-        String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION)+ "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + "_" + (CROSS_VALIDATION?"CR":"" ) + ".txt";
+        String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION)+ "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + (CROSS_VALIDATION?"_CR":"" ) + ".txt";
         Visualizer visualizer = new Visualizer("results\\" +nameFile);
 
         List<String> attrNames = new ArrayList<>();
@@ -90,9 +90,9 @@ public class Driver2 {
             System.out.println("===> Start Reading");
             dateEnd = manager.getTuplesFromDB(dateStart);
             manager.writeCSV("temple.csv");
-
+            manager.printCoutnSeverity();
             manager.reduceList();
-
+            manager.printCoutnSeverity();
             manager.writeCSV("templeReduced.csv");
             //manager.saveARFF(new File("templeReduced.csv"));
 
@@ -128,7 +128,7 @@ public class Driver2 {
                 System.out.println(classifiersNames.get(i)+" is running");
                 Result r = classifier.start(attrSelectionNames.get(i),null, null,
                                             classifiersNames.get(i),null);
-                System.out.println(classifiersNames.get(i)+" is running");
+
                 visualizer.addResult(r);
             }
         }
@@ -137,7 +137,7 @@ public class Driver2 {
         for(Integer i : numTuples)
             sum += i;
 
-        System.out.println("\nMean of tuples taken: " + sum);
+        System.out.println("\nMean of tuples taken: " + sum/numTuples.size());
 
         timer.stopTimer();
         NumberFormat formatter = new DecimalFormat("##");
@@ -151,7 +151,7 @@ public class Driver2 {
         System.out.println("\nApplication time: " + timeString);
         */
 
-        System.out.println("\n Application time: " + timer.getTime()+"s");
+        System.out.println("\nApplication time: " + timer.getTime()+"s");
 
     }
 }
