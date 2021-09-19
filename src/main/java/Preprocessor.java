@@ -48,7 +48,7 @@ public class Preprocessor {
         //spreadFilter.setInputFormat(train);
 
 
-        String[] op = new String[]{"-R","1,3,4,7,8,10-12,17-21,23,38,43,45-47"};
+        String[] op = new String[]{"-R","1,3,4,7,8,10,11,18,21,23,38,43,44,46"};
         Remove rmv = new Remove();
         rmv.setOptions(op);
         rmv.setInputFormat(train);
@@ -62,31 +62,31 @@ public class Preprocessor {
         sortLabelsFilter.setAttributeIndices("first-last");
 
         numericToNominal = new NumericToNominal();
-        numericToNominal.setAttributeIndices("1,31");
+        numericToNominal.setAttributeIndices("1,36");
 
         cleanerFilterTemperature = new NumericCleaner();
-        cleanerFilterTemperature.setAttributeIndices("9");
+        cleanerFilterTemperature.setAttributeIndices("13");
         cleanerFilterTemperature.setMaxDefault(Double.NaN);
         cleanerFilterTemperature.setMaxThreshold(130.0);
         cleanerFilterTemperature.setMinDefault(Double.NaN);
         cleanerFilterTemperature.setMinThreshold(-130.0);
 
         cleanerFilterPressure = new NumericCleaner();
-        cleanerFilterPressure.setAttributeIndices("11");
+        cleanerFilterPressure.setAttributeIndices("15");
         cleanerFilterPressure.setMaxDefault(Double.NaN);
         cleanerFilterPressure.setMaxThreshold(32.06);
         cleanerFilterPressure.setMinDefault(Double.NaN);
         cleanerFilterPressure.setMinThreshold(25.0);
 
         cleanerFilterVisibility = new NumericCleaner();
-        cleanerFilterVisibility.setAttributeIndices("12");
+        cleanerFilterVisibility.setAttributeIndices("16");
         cleanerFilterVisibility.setMaxDefault(Double.NaN);
         cleanerFilterVisibility.setMaxThreshold(10.1);
         cleanerFilterVisibility.setMinDefault(Double.NaN);
         cleanerFilterVisibility.setMinThreshold(0.0);
 
         cleanerFilterWindspeed = new NumericCleaner();
-        cleanerFilterWindspeed.setAttributeIndices("14");
+        cleanerFilterWindspeed.setAttributeIndices("18");
         cleanerFilterWindspeed.setMaxDefault(Double.NaN);
         cleanerFilterWindspeed.setMaxThreshold(254.1);
         cleanerFilterWindspeed.setMinDefault(Double.NaN);

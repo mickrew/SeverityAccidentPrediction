@@ -24,7 +24,7 @@ public class Driver2 {
     private final static int randomSeed = (int)System.currentTimeMillis();
     private final static int DRIFT =1;
     private final static int NUM_ITERATION = 5;
-    private final static String dateString = "2020-02-01 00:00:00";
+    private final static String dateString = "2018-02-01 00:00:00";
 
     private static boolean CROSS_VALIDATION = false;
     private static int GRANULARITY = 10;
