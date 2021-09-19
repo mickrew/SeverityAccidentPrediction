@@ -24,7 +24,7 @@ public class Driver2 {
     private final static int randomSeed = (int)System.currentTimeMillis();
     private final static int DRIFT =4;
     private final static int NUM_ITERATION = 12;
-    private final static String dateString = "2017-01-01 00:00:00";
+    private final static String dateString = "2020-12-04 00:00:00";
     private final static boolean FIXEDGRANULARITY = true;
 
     private static boolean CROSS_VALIDATION = false;
@@ -72,21 +72,28 @@ public class Driver2 {
 
         Date dateStart = sdf.parse(dateString);
         Date dateEnd, dateBegin = sdf.parse(dateString);
+        Date dateLimit = sdf.parse("2020-12-31 23:59:59");
 
         manager.setGranularity(GRANULARITY);
         //int lastGranularity= manager.getGranularity();
 
-        for (int j= 0; j<NUM_ITERATION; j++) {
+        boolean lastIteration=false;
+
+        for (int j= 0; j<NUM_ITERATION && !lastIteration; j++) {
             System.out.println("==========================================");
             System.out.println("Num Iteration: " + Integer.valueOf(j+1) + "/" + Integer.valueOf(NUM_ITERATION));
             //lastGranularity= manager.getGranularity();
 
             dateStart = DateUtils.addWeeks(sdf.parse(dateString), DRIFT*j);
+            Date prevDateEnd = DateUtils.addWeeks(dateStart, manager.getGranularity());
+            if (prevDateEnd.getTime() > dateLimit.getTime())
+                lastIteration = true;
 
             System.out.println("==========================================");
             System.out.println("===> Start Reading");
 
             dateEnd = manager.getTuplesFromDB(dateStart, FIXEDGRANULARITY);
+
             manager.writeCSV("temple.csv");
             manager.printCoutnSeverity();
             manager.reduceList();

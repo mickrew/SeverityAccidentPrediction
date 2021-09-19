@@ -94,6 +94,8 @@ public class ManageCSV {
 
         for(int i =0; tmp.getTime()<=dateEnd.getTime(); i++){
             tmp = DateUtils.addMonths(dateStart, i);
+            if (tmp.getTime()>dateLimit.getTime())
+                break;
             String month = String.valueOf(tmp.getMonth()+1);
             String nameFile = String.valueOf("data\\" + (tmp.getYear()+1900) + "-" + month + ".csv");
             nameFiles.add(nameFile);
@@ -161,8 +163,8 @@ public class ManageCSV {
         }
 
 
-
-        reader.close();
+        if (reader!=null)
+            reader.close();
 
 
 
