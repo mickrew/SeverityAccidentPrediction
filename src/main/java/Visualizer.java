@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
 import weka.classifiers.Evaluation;
 
 public class Visualizer{
@@ -127,8 +130,11 @@ public class Visualizer{
     }
 
     public void printResultAcc(Result r) throws Exception{
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd_HH-mm-ss");
+        String filenameAcc = "statistics\\accuracy_"+r.classifier+"_"+r.attrSel+"_"+dateFormat.format(date)+".csv";
 
-        FileWriter fileWriterAcc = new FileWriter("statistics\\accuracy_"+r.classifier+"_"+r.attrSel+".csv",true);
+        FileWriter fileWriterAcc = new FileWriter(filenameAcc,true);
         PrintWriter printWriterAcc = new PrintWriter(fileWriterAcc);
 
         printAccuracy(printWriterAcc, r);
