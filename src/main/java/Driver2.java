@@ -125,7 +125,8 @@ public class Driver2 {
                 Result r = classifier.start(attrSelectionNames.get(i),null, null,
                                             classifiersNames.get(i),null);
 
-                visualizer.addResult(r);
+                //visualizer.addResult(r);
+                visualizer.printResultAcc(r);
             }
         }
 
