@@ -108,7 +108,8 @@ public class Driver2 {
             List<String> attrSelectionNames = new ArrayList<>();
             /** 1 Classifier **/
             classifiersNames.add("J48");
-            attrSelectionNames.add("CFS_BESTFIRST");
+            attrSelectionNames.add("no");
+            //attrSelectionNames.add("CFS_BESTFIRST");
             /** 2 Classifier **/
             classifiersNames.add("RANDOM_FOREST");
             attrSelectionNames.add("CFS_GREEDYSTEPWISE");
@@ -125,7 +126,7 @@ public class Driver2 {
                 Result r = classifier.start(attrSelectionNames.get(i),null, null,
                                             classifiersNames.get(i),null);
 
-                //visualizer.addResult(r);
+                visualizer.addResult(r);
                 visualizer.printResultAcc(r);
             }
         }

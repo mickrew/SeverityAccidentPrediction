@@ -78,6 +78,8 @@ public class AttrSelectedClassifier {
                 infoGain(AttrEvalOptions);
                 ranker(AttrSearchOptions);
                 break;
+            case "no":
+                break;
             default:
                 System.err.println("Error: Attribute Selection Evaluation String Parameter is not correctly defined");
                 System.exit(1);

@@ -19,7 +19,7 @@ public class Visualizer{
     private PrintWriter printWriterIncr;
     private String outputFile;
     private String incrOutputFile;
-
+    private boolean isFirstTimeAcc=true;
 
     public Visualizer(String outputFile) throws IOException {
         this.outputFile = outputFile;
@@ -130,9 +130,18 @@ public class Visualizer{
     }
 
     public void printResultAcc(Result r) throws Exception{
-        Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd_HH-mm-ss");
-        String filenameAcc = "statistics\\accuracy_"+r.classifier+"_"+r.attrSel+"_"+dateFormat.format(date)+".csv";
+        if(isFirstTimeAcc){
+            File dir = new File("statistics");
+            for(File file: dir.listFiles()) {
+                if (!file.isDirectory())
+                    file.delete();
+            }
+            isFirstTimeAcc=false;
+        }
+        //Date date = new Date();
+        //SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
+        String filenameAcc = "statistics\\accuracy_"+r.classifier+"_"+r.attrSel+".csv";
 
         FileWriter fileWriterAcc = new FileWriter(filenameAcc,true);
         PrintWriter printWriterAcc = new PrintWriter(fileWriterAcc);
