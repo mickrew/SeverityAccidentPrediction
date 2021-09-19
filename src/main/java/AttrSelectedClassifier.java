@@ -5,6 +5,11 @@ import weka.classifiers.meta.AttributeSelectedClassifier;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -95,6 +100,11 @@ public class AttrSelectedClassifier {
 
             classifier.buildClassifier(datasets.get(0));
             evaluation.evaluateModel(classifier,datasets.get(1));
+
+            if(classifier.getClassifier() instanceof J48)
+                printAttributeSelected("J48_AttrSelected.csv");
+            else if(classifier.getClassifier() instanceof RandomForest)
+                printAttributeSelected("RandomForest_AttrSelected.csv");
 
             // =====>Model Complexity extraction and printing to Console
             //       Problem: RandomForest and CrossValidation clean all results and model at the end of evaluation.
@@ -287,5 +297,40 @@ public class AttrSelectedClassifier {
     }
 
     /****************************************************************************************/
+    private void printAttributeSelected(String nomeFile) throws Exception{
+        String info = classifier.toString();
+        String attrSelInformation = info.substring(info.indexOf("Selected attributes:"), info.indexOf("Header of reduced data:"));
+        System.out.println("\ntoString:"+ attrSelInformation);
 
+        List<String> newAttr = new ArrayList<>();
+        String[] infoSplitted = attrSelInformation.split("\n");
+        for(int i=1; i<infoSplitted.length; i++)
+            newAttr.add(infoSplitted[i].trim());
+
+        BufferedReader br = new BufferedReader(new FileReader(nomeFile));
+        List<String[]> oldAttr = new ArrayList<>();
+        String line;
+        while ((line = br.readLine()) != null) {
+            oldAttr.add(line.split(","));
+        }
+        br.close();
+
+        for(int i=0; i<newAttr.size(); i++){
+            boolean found=false;
+            for(int j=0; j<oldAttr.size(); j++){
+                if(newAttr.get(i).equals(oldAttr.get(j)[0])) {
+                    oldAttr.get(i)[1] += "|";
+                    found=true;
+                }
+            }
+            if(found==false)
+                oldAttr.add(new String[]{newAttr.get(i),"|"});
+        }
+        File file = new File(nomeFile);
+        file.delete();
+        FileWriter fileWriter = new FileWriter(nomeFile,true);
+        for(String[] elem: oldAttr)
+            fileWriter.write(elem[0]+","+elem[1]+"\n");
+        fileWriter.close();
+    }
 }
