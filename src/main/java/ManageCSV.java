@@ -72,10 +72,9 @@ public class ManageCSV {
         }
         System.out.println("Reduced to\t" + list.size() + " tuples");
         countTuples = list.size();
-        //System.out.println("DEBUG");
     }
 
-    public Date getTuplesFromDB(Date dateStart) throws IOException {
+    public Date getTuplesFromDB(Date dateStart, boolean fixedGranularity) throws IOException, ParseException {
         list.clear();
         FileWriter write = new FileWriter("temple.csv");
         CSVWriter csvWriter = new CSVWriter(write);
@@ -84,7 +83,12 @@ public class ManageCSV {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 
+        Date dateLimit = sdf.parse("2020-12-31 23:59:59");
+
         Date dateEnd = DateUtils.addWeeks(dateStart, granularity);
+        if (dateEnd.getTime() > dateLimit.getTime())
+            dateEnd=dateLimit;
+
         Date tmp = dateStart;
         ArrayList<String> nameFiles = new ArrayList<>();
 
@@ -105,65 +109,63 @@ public class ManageCSV {
         boolean check=false;
 
         System.out.println("Granularity: " + granularity);
-        for(int k = 0; (k < 3 && !check); k++ ){
-            for(int i = 0; i< nameFiles.size(); i++) {
-                reader = new CSVReader(new FileReader(nameFiles.get(i)));
-                nextLine = reader.readNext(); //read the header from file
-                while ((nextLine = reader.readNext()) != null) {
 
-                    //if (count % 10000 == 0) System.out.println(count);
 
-                    count++;
+        for(int i = 0; i< nameFiles.size(); i++) {
+            reader = new CSVReader(new FileReader(nameFiles.get(i)));
+            nextLine = reader.readNext(); //read the header from file
+            while ((nextLine = reader.readNext()) != null) {
 
-                    try {
-                        date = sdf.parse(nextLine[2]);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    if (date.getTime() >= dateStart.getTime() && date.getTime() <= dateEnd.getTime()) {
+                //if (count % 10000 == 0) System.out.println(count);
 
-                        int severity = Integer.valueOf(nextLine[1]);
-                        if (severity <= 4 && severity >= 1)
-                            countSeverity[severity - 1]++;
-                        nextLine = checkValues(nextLine);
-                        this.list.add(nextLine);
-                        csvWriter.writeNext(nextLine);
-                    }
+                count++;
+
+                try {
+                    date = sdf.parse(nextLine[2]);
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
+                if (date.getTime() >= dateStart.getTime() && date.getTime() <= dateEnd.getTime()) {
 
+                    int severity = Integer.valueOf(nextLine[1]);
+                    if (severity <= 4 && severity >= 1)
+                        countSeverity[severity - 1]++;
+                    nextLine = checkValues(nextLine);
+                    this.list.add(nextLine);
+                    csvWriter.writeNext(nextLine);
+                }
             }
 
+        }
+        if(!fixedGranularity) {
             if (list.size() > 1.5 * THRESHOLD) {
 
-                granularity -=1;// (int) (0.5 * granularity);
+                granularity -= 1;// (int) (0.5 * granularity);
                 Date dateLastEnd = dateEnd;
                 dateEnd = DateUtils.addWeeks(dateStart, granularity);
 
-                System.out.println("reduce granularity: " + list.size() + " is over  " + 1.5*THRESHOLD +"\tnew value = " + granularity);
+                System.out.println("reduce granularity: " + list.size() + " is over  " + 1.5 * THRESHOLD + "\tnew value = " + granularity);
                 //System.out.println("Change dateEnd from "+sdf.format(dateLastEnd)+" to " + sdf.format(dateEnd));
                 //this.list.clear();
                 //count =0;
                 //the granularity cannot go down 1
-                
+
                 if (granularity < 1)
                     granularity = 1;
                 check = true;
-            } else if (list.size() < 0.5 * THRESHOLD && k == 0) {
+            } else if (list.size() < 0.5 * THRESHOLD) {
                 granularity += 1;//(int) (1.5 * granularity);
                 System.out.println("New granularity: " + granularity);
                 check = true;
-            } else  {
-                check = true;
             }
-
-            //check=true;
-
-
-
-            reader.close();
-
-
         }
+
+
+
+        reader.close();
+
+
+
         System.out.println("Range dates from " + sdf1.format(dateStart) + " to " + sdf1.format(dateEnd));
         System.out.println("Read\t" + count  + " tuples");
         System.out.println("Extracted\t" + list.size() + " tuples");

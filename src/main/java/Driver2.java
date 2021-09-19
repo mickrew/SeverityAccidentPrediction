@@ -22,12 +22,13 @@ public class Driver2 {
     /*************/
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
-    private final static int DRIFT =7;
-    private final static int NUM_ITERATION = 15;
-    private final static String dateString = "2016-02-01 00:00:00";
+    private final static int DRIFT =4;
+    private final static int NUM_ITERATION = 12;
+    private final static String dateString = "2017-01-01 00:00:00";
+    private final static boolean FIXEDGRANULARITY = true;
 
     private static boolean CROSS_VALIDATION = false;
-    private static int GRANULARITY = 14;
+    private static int GRANULARITY = 12;
     /*************/
 
     public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
@@ -84,7 +85,8 @@ public class Driver2 {
 
             System.out.println("==========================================");
             System.out.println("===> Start Reading");
-            dateEnd = manager.getTuplesFromDB(dateStart);
+
+            dateEnd = manager.getTuplesFromDB(dateStart, FIXEDGRANULARITY);
             manager.writeCSV("temple.csv");
             manager.printCoutnSeverity();
             manager.reduceList();
@@ -108,8 +110,8 @@ public class Driver2 {
             List<String> attrSelectionNames = new ArrayList<>();
             /** 1 Classifier **/
             classifiersNames.add("J48");
-            attrSelectionNames.add("no");
-            //attrSelectionNames.add("CFS_BESTFIRST");
+            //attrSelectionNames.add("no");
+            attrSelectionNames.add("CFS_BESTFIRST");
             /** 2 Classifier **/
             classifiersNames.add("RANDOM_FOREST");
             attrSelectionNames.add("CFS_GREEDYSTEPWISE");

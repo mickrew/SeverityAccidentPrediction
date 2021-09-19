@@ -32,6 +32,7 @@ public class Driver {
     private final static int DRIFT = 1;
     private final static int NUM_ITERATION = 3;
     private final static String dateString = "2016-02-01 00:00:00";
+    private final static boolean FIXEDGRANULARITY = false;
 
     private static boolean CROSS_VALIDATION = true;
     private static int GRANULARITY = 4;
@@ -98,7 +99,7 @@ public class Driver {
 
             System.out.println("==========================================");
             System.out.println("===> Start Reading");
-            dateEnd = manager.getTuplesFromDB(nextDateStart);
+            dateEnd = manager.getTuplesFromDB(nextDateStart, FIXEDGRANULARITY);
             manager.writeCSV("temple.csv");
 
             manager.reduceList();
