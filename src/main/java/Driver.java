@@ -1,29 +1,50 @@
 import org.apache.commons.lang3.time.DateUtils;
+import weka.classifiers.Evaluation;
+import weka.classifiers.UpdateableClassifier;
+import weka.classifiers.bayes.NaiveBayesUpdateable;
+import weka.classifiers.trees.HoeffdingTree;
+import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.converters.ArffLoader;
+import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Driver {
+    /***********************************************************************************************************/
+    /**************************** DRIVER FOR INCREMENTAL CLASSIFIER EXECUTION **********************************/
+    /***********************************************************************************************************/
 
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+    private static ArrayList<Integer> numTuples = new ArrayList<>();
     /*************/
-    private final static double PERCENTAGESPLIT = 100.0;
-    private final static int randomSeed = (int)System.currentTimeMillis();
-    private final static int DRIFT =1;
-    private final static int NUM_ITERATION = 48;
+    private static double PERCENTAGESPLIT = 66.0;
+    private final static int randomSeed = (int) System.currentTimeMillis();
+    private final static int DRIFT = 1;
+    private final static int NUM_ITERATION = 3;
     private final static String dateString = "2016-02-01 00:00:00";
 
     private static boolean CROSS_VALIDATION = true;
-    private static int GRANULARITY = 1;
+    private static int GRANULARITY = 4;
     /*************/
 
-    public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
+    private static boolean prova = true;
+    private static NaiveBayesUpdateable nBayesUpdatable = new NaiveBayesUpdateable();
+    private static UpdateableClassifier updateableClassifier = nBayesUpdatable;
+    private static weka.classifiers.Classifier classifierInterface = nBayesUpdatable;
 
+    //private static IncrClassifier incrNaiveBayes = new IncrClassifier("NAIVE_BAYES_UPDATABLE", null);
+
+    public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
         ManageCSV manager = new ManageCSV();
         CSVLoader source = new CSVLoader();
         //DataSource source = new DataSource("templeLoad.arff");
@@ -33,13 +54,9 @@ public class Driver {
         source.setStringAttributes("10");
         source.setSource(new File("templeReduced.csv"));
 
-
         final Instances dataSet = source.getDataSet();
-
-
         dataSet.randomize(new Random(randomSeed));
-
-        int trainSize = (int)Math.round(dataSet.numInstances() * trainPercentage / 100);
+        int trainSize = (int) Math.round(dataSet.numInstances() * trainPercentage / 100);
         int testSize = dataSet.numInstances() - trainSize;
 
         Instances train = new Instances(dataSet, 0, trainSize);
@@ -48,7 +65,6 @@ public class Driver {
         List<Instances> dataNotFiltered = new ArrayList<>();
         dataNotFiltered.add(train);
         dataNotFiltered.add(test);
-
         return dataNotFiltered;
     }
 
@@ -56,36 +72,40 @@ public class Driver {
         Timer timer = new Timer();
         timer.startTimer();
         ManageCSV manager = new ManageCSV();
-        Visualizer visualizer = new Visualizer("results.txt");
 
-        List<String> attrNames = new ArrayList<>();
+        String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION) + "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + "_" + ".txt";
+        Visualizer incrVisualizer = new Visualizer("results\\" + "updateable" + nameFile);
+        /*List<String> attrNames = new ArrayList<>();
         attrNames.add("cfs_BestFirst");
         attrNames.add("cfs_GreedyStepWise");
         attrNames.add("InfoGain_Ranker");
-
+        */
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
         Date dateStart = sdf.parse(dateString);
+        Date nextDateStart = dateStart;
         Date dateEnd;
 
-
         manager.setGranularity(GRANULARITY);
-        int lastGranularity= manager.getGranularity();
+        //int lastGranularity= manager.getGranularity();
 
-        for (int j= 0; j<NUM_ITERATION; j++) {
-            lastGranularity= manager.getGranularity();
+        for (int j = 0; j < NUM_ITERATION; j++) {
+            System.out.println("==========================================");
+            System.out.println("Num Iteration: " + Integer.valueOf(j + 1) + "/" + Integer.valueOf(NUM_ITERATION));
+            //lastGranularity= manager.getGranularity();
 
-            dateStart = DateUtils.addWeeks(dateStart, DRIFT*j);
+            nextDateStart = DateUtils.addWeeks(nextDateStart, DRIFT * j);
 
             System.out.println("==========================================");
             System.out.println("===> Start Reading");
-            dateEnd = manager.getTuplesFromDB(dateStart);
+            dateEnd = manager.getTuplesFromDB(nextDateStart);
             manager.writeCSV("temple.csv");
 
             manager.reduceList();
-
             manager.writeCSV("templeReduced.csv");
             //manager.saveARFF(new File("templeReduced.csv"));
+
+            numTuples.add(manager.getCountTuples());
 
             List<Instances> dataNotFiltered = loadDataSplitTrainTest(PERCENTAGESPLIT);
 
@@ -94,34 +114,67 @@ public class Driver {
 
 
 
+            ArffSaver saver = new ArffSaver();
+            saver.setInstances(dataFiltered.get(0));
+            saver.setFile(new File("data\\dataFiltered.arff"));
+            saver.writeBatch();
+
+            /**************************** CLASSIFICATION PHASE **********************************/
             System.out.println("------------------------------------");
             System.out.println("===> Start Classifying");
 
-            List<String> classifiersNames = new ArrayList<>();
-            List<String> attrSelectionNames = new ArrayList<>();
-            /** 1 Classifier **/
-            classifiersNames.add("J48");
-            attrSelectionNames.add("CFS_BESTFIRST");
-            /** 2 Classifier **/
-            classifiersNames.add("RANDOM_FOREST");
-            attrSelectionNames.add("CFS_GREEDYSTEPWISE");
+            for (Instances dataset : dataFiltered)
+                dataset.setClassIndex(0);
 
-            if(classifiersNames.size() != attrSelectionNames.size()){
-                System.err.println("Error: classifier definition is wrong!");
-                System.exit(1);
+            //IncrClassifier incrNaiveBayes = IncrClassifier.getInstance("NAIVE_BAYES_UPDATABLE",null);
+            //IncrClassifier incrHoeffdingTree = IncrClassifier.getInstance("HOEFFDING_TREE",null);
+
+            /*
+            System.out.println("NaiveBayesUpdatable is running (updating its model)");
+            Result naiveBayesResult = incrNaiveBayes.update(dataFiltered,sdf1.format(dateStart),sdf1.format(dateEnd));
+            System.out.println("HoeffdingTree is running (updating its model)");
+            //Result hoeffdingTreeResult = incrHoeffdingTree.update(dataFiltered,sdf1.format(dateStart),sdf1.format(dateEnd));
+            incrVisualizer.addResult(naiveBayesResult);
+            //incrVisualizer.addResult(hoeffdingTreeResult);
+            */
+
+
+            ArffLoader loader = new ArffLoader();
+            loader.setSource(new File("data\\dataFiltered.arff"));
+            Instances structure = loader.getStructure();
+            structure.setClassIndex(0);
+
+            if (prova == true) {
+                nBayesUpdatable.buildClassifier(structure);
+                prova = false;
             }
 
-            for(int i=0; i < classifiersNames.size(); i++){
-                AttrSelectedClassifier classifier = new AttrSelectedClassifier(dataFiltered,CROSS_VALIDATION,
-                        sdf1.format(dateStart), sdf1.format(dateEnd));
-                Result r = classifier.start(attrSelectionNames.get(i),null, null,
-                        classifiersNames.get(i),null);
-                System.out.println(classifiersNames.get(i)+" is running");
-                visualizer.addResult(r);
-            }
+            Instance current;
+            while ((current = loader.getNextInstance(dataFiltered.get(0))) != null)
+                nBayesUpdatable.updateClassifier(current);
+            /*
+            for (Instance sample : dataFiltered.get(0))
+                updateableClassifier.updateClassifier(sample);
+            //nBayesUpdatable.updateClassifier(sample);
+
+             */
+            System.out.println(nBayesUpdatable);
+            Evaluation evaluation = new Evaluation(dataFiltered.get(0));
+            evaluation.evaluateModel(classifierInterface, dataFiltered.get(1));
+            Result r = Visualizer.evalResult(evaluation, "NAIVE_BAYES_UPDATABLE", null, "", "startDate", "endDate");
+            incrVisualizer.addResult(r);
+
+
+            Integer sum = 0;
+            for (Integer i : numTuples)
+                sum += i;
+
+            System.out.println("\nMean of tuples taken: " + sum);
+
+            timer.stopTimer();
+            NumberFormat formatter = new DecimalFormat("##");
+
+            System.out.println("\n Application time: " + timer.getTime() + "s");
         }
-        timer.stopTimer();
-        System.out.println("\n Application time: " + timer.getTime()+"s");
-
     }
 }

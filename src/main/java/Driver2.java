@@ -12,7 +12,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Driver2 {
+    /***********************************************************************************************************/
+    /************************ DRIVER FOR ATTRIBUTE SELECTION CLASSIFIER EXECUTION ******************************/
+    /***********************************************************************************************************/
 
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
+    private static ArrayList<Integer> numTuples = new ArrayList<>();
     /*************/
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
@@ -25,7 +31,6 @@ public class Driver2 {
     /*************/
 
     public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
-
         ManageCSV manager = new ManageCSV();
         CSVLoader source = new CSVLoader();
         //DataSource source = new DataSource("templeLoad.arff");
@@ -35,12 +40,8 @@ public class Driver2 {
         source.setStringAttributes("10");
         source.setSource(new File("templeReduced.csv"));
 
-
         final Instances dataSet = source.getDataSet();
-
-
         dataSet.randomize(new Random(randomSeed));
-
         int trainSize = (int)Math.round(dataSet.numInstances() * trainPercentage / 100);
         int testSize = dataSet.numInstances() - trainSize;
 
@@ -50,7 +51,6 @@ public class Driver2 {
         List<Instances> dataNotFiltered = new ArrayList<>();
         dataNotFiltered.add(train);
         dataNotFiltered.add(test);
-
         return dataNotFiltered;
     }
 
@@ -63,25 +63,21 @@ public class Driver2 {
 
         String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION)+ "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + (CROSS_VALIDATION?"_CR":"" ) + ".txt";
         Visualizer visualizer = new Visualizer("results\\" +nameFile);
-
         List<String> attrNames = new ArrayList<>();
         attrNames.add("cfs_BestFirst");
         attrNames.add("cfs_GreedyStepWise");
         attrNames.add("InfoGain_Ranker");
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-        Date dateStart = sdf.parse(dateString);
-        Date dateEnd;
 
-        ArrayList<Integer> numTuples = new ArrayList<>();
+        Date dateStart = sdf.parse(dateString);
+        Date dateEnd, dateBegin = sdf.parse(dateString);
+
         manager.setGranularity(GRANULARITY);
         //int lastGranularity= manager.getGranularity();
 
         for (int j= 0; j<NUM_ITERATION; j++) {
             System.out.println("==========================================");
             System.out.println("Num Iteration: " + Integer.valueOf(j+1) + "/" + Integer.valueOf(NUM_ITERATION));
-
             //lastGranularity= manager.getGranularity();
 
             dateStart = DateUtils.addWeeks(sdf.parse(dateString), DRIFT*j);

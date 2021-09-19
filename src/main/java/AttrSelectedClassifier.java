@@ -5,17 +5,6 @@ import weka.classifiers.meta.AttributeSelectedClassifier;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
-import weka.core.converters.ConverterUtils;
-import weka.filters.Filter;
-import weka.filters.supervised.attribute.AttributeSelection;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -104,12 +93,17 @@ public class AttrSelectedClassifier {
 
             classifier.buildClassifier(datasets.get(0));
             evaluation.evaluateModel(classifier,datasets.get(1));
+
+            // =====>Model Complexity extraction and printing to Console
+            //       Problem: RandomForest and CrossValidation clean all results and model at the end of evaluation.
             /*
             if(classifier.getClassifier() instanceof J48) {
                 System.out.println(j48.measureNumLeaves());
             }
             */
         }
+        // ====> automatic computed time extraction:
+        //       Problem: RandomForest and CrossValidation clean all results and model at the end of evaluation.
         //double time = classifier.measureTime();
         timer.stopTimer();
 
@@ -121,7 +115,7 @@ public class AttrSelectedClassifier {
         //System.out.println(evaluation.pctCorrect());
         ///****/
 
-        return evalResult(evaluation, classifierName, attrEvalName,timer.getTime());
+        return Visualizer.evalResult(evaluation, classifierName, attrEvalName,timer.getTime(), startDate, endDate);
     }
 
 
@@ -290,33 +284,4 @@ public class AttrSelectedClassifier {
 
     /****************************************************************************************/
 
-    /******************************* Result Evaluation **************************************/
-
-    private Result evalResult(Evaluation eval, String classifierName, String attrSelName, String time) throws Exception{
-        Result r = new Result();
-        r.classifier = classifierName;
-        r.attrSel = attrSelName;
-        r.startDate = startDate;
-        r.endDate = endDate;
-        r.timeRequired = time;
-        r.accuracy = eval.pctCorrect();
-        r.totSamples = eval.numInstances();
-        r.classSamples = eval.getClassPriors();
-        for(int i=0; i<4; i++) {
-            r.classTPR[i] = eval.truePositiveRate(i);
-            r.classFPR[i] = eval.falsePositiveRate(i);
-            r.precision[i] = eval.precision(i);
-            r.recall[i] = eval.recall(i);
-            r.fMeasure[i] = eval.fMeasure(i);
-        }
-        r.weightedTPR = eval.weightedTruePositiveRate();
-        r.weightedFPR = eval.weightedFalsePositiveRate();
-        r.weightedPrecision = eval.weightedPrecision();
-        r.weightedRecall = eval.weightedRecall();
-        r.weightedFMeasure = eval.weightedFMeasure();
-        r.summaryEval = eval.toSummaryString();
-        r.confusionMatrix = eval.toMatrixString();
-        return r;
-    }
-    /****************************************************************************************/
 }

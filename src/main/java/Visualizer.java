@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import weka.classifiers.Evaluation;
 
 public class Visualizer{
 
@@ -95,5 +96,33 @@ public class Visualizer{
         else{
             printSingleResult(printWriterIncr, newR);
         }
+    }
+    /******************************* Evaluation Result Extraction **************************************/
+    public static Result evalResult(Evaluation eval, String classifierName, String attrSelName, String time, String startDate, String endDate) throws Exception{
+        Result r = new Result();
+        r.classifier = classifierName;
+        r.attrSel = attrSelName;
+        r.startDate = startDate;
+        r.endDate = endDate;
+        r.timeRequired = time;
+        r.accuracy = eval.pctCorrect();
+        r.totSamples = eval.numInstances();
+        r.classSamples = eval.getClassPriors();
+        for(int i=0; i<4; i++) {
+            r.classTPR[i] = eval.truePositiveRate(i);
+            r.classFPR[i] = eval.falsePositiveRate(i);
+            r.precision[i] = eval.precision(i);
+            r.recall[i] = eval.recall(i);
+            r.fMeasure[i] = eval.fMeasure(i);
+        }
+        r.weightedTPR = eval.weightedTruePositiveRate();
+        r.weightedFPR = eval.weightedFalsePositiveRate();
+        r.weightedPrecision = eval.weightedPrecision();
+        r.weightedRecall = eval.weightedRecall();
+        r.weightedFMeasure = eval.weightedFMeasure();
+        r.summaryEval = eval.toSummaryString();
+        r.confusionMatrix = eval.toMatrixString();
+        return r;
+        /****************************************************************************************/
     }
 }

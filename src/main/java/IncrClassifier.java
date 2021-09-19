@@ -2,28 +2,34 @@
 import weka.classifiers.Evaluation;
 import weka.classifiers.UpdateableClassifier;
 import weka.classifiers.bayes.NaiveBayesUpdateable;
-import weka.classifiers.lazy.IBk;
 import weka.classifiers.trees.HoeffdingTree;
 import weka.core.Instance;
 import weka.core.Instances;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class IncrClassifier {
-    private Instances newDataset;
+    //private static List<IncrClassifier> incrClassifier = new ArrayList<>();
     private String startDate;
     private String endDate;
+    private String classifierName;
+    private boolean isFirstTime = true;
+    private Timer timer = new Timer();
 
     private UpdateableClassifier updateableClassifier;
     private weka.classifiers.Classifier classifierInterface;
     private Evaluation evaluation;
 
     private NaiveBayesUpdateable nBayesUpdatable;
-    //private IBk ibk;
     private HoeffdingTree hoeffdingTree;
 
 
-    public IncrClassifier(Instances datasetStructure, String classifierName, String classifierOptions) throws Exception {
+    public IncrClassifier(String classifierName, String classifierOptions){
+        try{
         /**============== Instantiation of chosen Incremental Classifier ==============**/
+        this.classifierName = classifierName;
         switch (classifierName) {
             case "NAIVE_BAYES_UPDATABLE":
                 nBayesUpdatable = new NaiveBayesUpdateable();
@@ -32,7 +38,7 @@ public class IncrClassifier {
                 updateableClassifier = nBayesUpdatable;
                 classifierInterface = nBayesUpdatable;
                 break;
-
+/*
             case "HOEFFDING_TREE":
                 hoeffdingTree = new HoeffdingTree();
                 if (classifierOptions != null)
@@ -40,61 +46,47 @@ public class IncrClassifier {
                 updateableClassifier = hoeffdingTree;
                 classifierInterface = hoeffdingTree;
                 break;
+*/
             default:
                 System.err.println("Error: Classifier String Parameter is not correctly defined");
                 System.exit(1);
         }
-        /**============== Input header definition ==============**/
-        if (datasetStructure.size() > 1) {
-            System.err.println("Error: datasetStructure should be an empty set");
+        }catch(Exception e){
+            System.err.println("Error: Exception thrown at IncrClassifier constructor");
             System.exit(1);
-            //datasetStructure.
         }
-
     }
+/*
+    public static IncrClassifier getInstance(String classifierName, String classifierOptions) throws Exception{
+        /**============== already built classifier: to be updated ==============**/
+/*        for(IncrClassifier currentClassifier: incrClassifier){
+            if(currentClassifier.classifierName == classifierName)
+                return currentClassifier;
+        }
+        /**============== First definition ==============**/
+/*        IncrClassifier newClassifier = new IncrClassifier(classifierName, classifierOptions);
+        incrClassifier.add(newClassifier);
+        return newClassifier;
+    }*/
 
-    public void update(Instances dataset, String startDate, String endDate) throws Exception {
-        newDataset = dataset;
+    public Result update(List<Instances> datasets, String startDate, String endDate) throws Exception {
         this.startDate = startDate;
         this.endDate = endDate;
-        newDataset.setClassIndex(0);
 
-        //timer.startTimer();
-        /**======= Performing Incremental Update of Model =======**/
-        for (Instance sample : dataset)
-            updateableClassifier.updateClassifier(sample);
-/*
-            classifier.buildClassifier(datasets.get(0));
-            evaluation.evaluateModel(classifier,datasets.get(1));
+        timer.startTimer();
+        /**============== First Model Build ==============**/
+        if (isFirstTime) {
+            classifierInterface.buildClassifier(datasets.get(0));
+            isFirstTime = false;
+        } else {
+            /**======= Performing Incremental Update of Model =======**/
+            for (Instance sample : datasets.get(0))
+                updateableClassifier.updateClassifier(sample);
+        }
+        evaluation = new Evaluation(datasets.get(0));
+        evaluation.evaluateModel(classifierInterface, datasets.get(1));
+        timer.stopTimer();
 
-
-        double time = classifier.measureTime();
-        //timer.stopTimer();
-
-*/
-        ///****/
-        //System.out.println(evaluation.toSummaryString("Results:\n", false));
-        //System.out.println(evaluation.toClassDetailsString());
-        //System.out.println(evaluation.toMatrixString());
-        //System.out.println(evaluation.pctCorrect());
-        ///****/
-
-/*
-        // load data
-        ArffLoader loader = new ArffLoader();
-        loader.setFile(new File(args[0]));
-        Instances structure = loader.getStructure();
-        structure.setClassIndex(structure.numAttributes() - 1);
-
-        // train NaiveBayes
-        NaiveBayesUpdateable nb = new NaiveBayesUpdateable();
-        nb.buildClassifier(structure);
-        Instance current;
-        while ((current = loader.getNextInstance(structure)) != null)
-            nb.updateClassifier(current);
-
-        // output generated model
-        System.out.println(nb);
-*/
+        return Visualizer.evalResult(evaluation, classifierName, null, timer.getTime(), startDate, endDate);
     }
 }
