@@ -128,7 +128,7 @@ public class Visualizer{
 
     public void printResultAcc(Result r) throws Exception{
 
-        FileWriter fileWriterAcc = new FileWriter("statistics\\accuracy_"+r.classifier+"_"+r.attrSel+".txt",true);
+        FileWriter fileWriterAcc = new FileWriter("statistics\\accuracy_"+r.classifier+"_"+r.attrSel+".csv",true);
         PrintWriter printWriterAcc = new PrintWriter(fileWriterAcc);
 
         printAccuracy(printWriterAcc, r);
@@ -139,6 +139,6 @@ public class Visualizer{
 
     public void printAccuracy(PrintWriter printWriter3, Result r){
         NumberFormat formatter = new DecimalFormat("#.###");
-        printWriter3.printf("%s %s %s\n", r.startDate,r.endDate,formatter.format(r.accuracy));
+        printWriter3.printf("%s,%s,%s\n", r.startDate,r.endDate,formatter.format(r.accuracy).replace(",","."));
         }
 }

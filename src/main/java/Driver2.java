@@ -22,12 +22,12 @@ public class Driver2 {
     /*************/
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
-    private final static int DRIFT =1;
-    private final static int NUM_ITERATION = 5;
-    private final static String dateString = "2018-02-01 00:00:00";
+    private final static int DRIFT =7;
+    private final static int NUM_ITERATION = 15;
+    private final static String dateString = "2016-02-01 00:00:00";
 
     private static boolean CROSS_VALIDATION = false;
-    private static int GRANULARITY = 10;
+    private static int GRANULARITY = 14;
     /*************/
 
     public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
