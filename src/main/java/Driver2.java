@@ -20,6 +20,7 @@ public class Driver2 {
     private static SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
     private static ArrayList<Integer> numTuples = new ArrayList<>();
     private static IncrClassifier incrClassifier = new IncrClassifier();
+    private static Visualizer visualizer = new Visualizer();
 
     /*************/
     private static double PERCENTAGESPLIT = 66.0;
@@ -32,8 +33,12 @@ public class Driver2 {
     private final static boolean runUpdatableClassifier = false;
 
     private static boolean CROSS_VALIDATION = false;
-    private static int GRANULARITY = 4;
+    private static int GRANULARITY = 8;
     /*************/
+
+    private static String suffixNameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION)+
+                                    "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY)+
+                                    (CROSS_VALIDATION?"_CR":"" ) + ".txt";
 
 
     public static Instances loadData(String file) throws Exception {
@@ -80,10 +85,6 @@ public class Driver2 {
         Timer timer = new Timer();
         timer.startTimer();
         ManageCSV manager = new ManageCSV();
-
-        String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION)+ "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + (CROSS_VALIDATION?"_CR":"" ) + ".txt";
-        Visualizer visualizer = new Visualizer("results\\" +nameFile, manager);
-
 
         /**************** with Attribute Selection *******************/
 
@@ -191,7 +192,7 @@ public class Driver2 {
                 Result r = classifier.start(attrSelectionNames.get(i),null, null,
                                             classifiersNames.get(i),null);
 
-                visualizer.addResult(r);
+                visualizer.addResult("results\\" + r.classifier + "_"+ r.attrSel + "_"+ suffixNameFile, r);
                 visualizer.printResultAcc(r);
             }
 
@@ -199,7 +200,7 @@ public class Driver2 {
 
             if(j!=0 && runUpdatableClassifier) {
                 for(Result ur: incrClassifier.update(sdf1.format(dateStartTraining), sdf1.format(dateEnd))) {
-                    visualizer.addResult(ur);
+                    visualizer.addResult("results\\" +ur.classifier +"_"+ ur.attrSel + "_"+ suffixNameFile, ur);
                     visualizer.printResultAcc(ur);
                 }
             }

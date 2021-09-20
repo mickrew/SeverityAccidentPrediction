@@ -17,31 +17,31 @@ public class Visualizer{
     private FileWriter fileWriterIncr;
     private PrintWriter printWriter;
     private PrintWriter printWriterIncr;
-    private String outputFile;
     private String incrOutputFile;
     private boolean isFirstTimeAcc=true;
-    private ManageCSV manager;
+    private boolean isFirstTimeResults=true;
 
-    public Visualizer(String outputFile, ManageCSV manager) throws IOException {
-        this.outputFile = outputFile;
-        incrOutputFile = "Incremental"+outputFile;
-        File f = new File(outputFile);
-        if(f.exists()) {
-            f.delete();
-        }
-        f = new File(incrOutputFile);
-        if(f.exists()) {
-            f.delete();
-        }
-        this.manager = manager;
-    }
+    public Visualizer() {}
 
-    public void addResult(Result r) throws IOException{
+    public void addResult(String outputFile, Result r) throws IOException{
         results.add(r);
-        printResult(r);
+        printResult(outputFile, r);
     }
 
-    public void printResult(Result r) throws IOException {
+    public void printResult(String outputFile, Result r) throws IOException {
+        if(isFirstTimeResults) {
+            incrOutputFile = "Incremental" + outputFile;
+            File f = new File(outputFile);
+            if (f.exists()) {
+                f.delete();
+            }
+            f = new File(incrOutputFile);
+            if (f.exists()) {
+                f.delete();
+            }
+            isFirstTimeResults = false;
+        }
+
         fileWriter = new FileWriter(outputFile,true);
         printWriter = new PrintWriter(fileWriter);
         fileWriterIncr = new FileWriter(incrOutputFile,true);

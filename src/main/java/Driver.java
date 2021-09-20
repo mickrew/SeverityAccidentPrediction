@@ -75,7 +75,7 @@ public class Driver {
         ManageCSV manager = new ManageCSV();
 
         String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION) + "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + "_" + ".txt";
-        Visualizer incrVisualizer = new Visualizer("results\\" + "updateable" + nameFile, manager);
+        //Visualizer incrVisualizer = new Visualizer("results\\" + "updateable" + nameFile, manager);
         /*List<String> attrNames = new ArrayList<>();
         attrNames.add("cfs_BestFirst");
         attrNames.add("cfs_GreedyStepWise");
@@ -163,7 +163,7 @@ public class Driver {
             Evaluation evaluation = new Evaluation(dataFiltered.get(0));
             evaluation.evaluateModel(classifierInterface, dataFiltered.get(1));
             Result r = Visualizer.evalResult(evaluation, "NAIVE_BAYES_UPDATABLE", null, "", "startDate", "endDate");
-            incrVisualizer.addResult(r);
+            //incrVisualizer.addResult(r);
 
 
             Integer sum = 0;
