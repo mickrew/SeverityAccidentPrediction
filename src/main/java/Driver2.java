@@ -19,17 +19,19 @@ public class Driver2 {
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
     private static ArrayList<Integer> numTuples = new ArrayList<>();
+    private static IncrClassifier incrClassifier = new IncrClassifier();
+
     /*************/
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
-    private final static int DRIFT =2;
-    private final static int NUM_ITERATION = 1;
-    private final static String dateString = "2020-01-01 00:00:00";
+    private final static int DRIFT =4;
+    private final static int NUM_ITERATION = 10;
+    private final static String dateString = "2018-01-01 00:00:00";
 
     private final static boolean FIXEDGRANULARITY = true;
 
     private static boolean CROSS_VALIDATION = false;
-    private static int GRANULARITY = 24;
+    private static int GRANULARITY = 4;
     /*************/
 
     public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
@@ -70,7 +72,6 @@ public class Driver2 {
         attrNames.add("cfs_GreedyStepWise");
         attrNames.add("InfoGain_Ranker");
 
-
         Date dateStart = sdf.parse(dateString);
         Date dateEnd, dateBegin = sdf.parse(dateString);
         Date dateLimit = sdf.parse("2020-12-31 23:59:59");
@@ -109,20 +110,23 @@ public class Driver2 {
             int[] numInstancesSeverity = manager.getCountSeverity();
             List<Instances> dataFiltered = Preprocessor.filter(dataNotFiltered.get(0), dataNotFiltered.get(1), numInstancesSeverity[3]);
 
-
+            if(j==0) {
+                incrClassifier.buildIncrClassifier("NAIVE_BAYES_UPDATABLE", null);
+                incrClassifier.buildIncrClassifier("HOEFFDING_TREE", null);
+            }
 
             System.out.println("------------------------------------");
             System.out.println("===> Start Classifying");
 
+            /**************** with Attribute Selection *******************/
             List<String> classifiersNames = new ArrayList<>();
             List<String> attrSelectionNames = new ArrayList<>();
             /** 1 Classifier **/
-            classifiersNames.add("J48");
-            //attrSelectionNames.add("no");
-            attrSelectionNames.add("CFS_BESTFIRST");
+            //classifiersNames.add("J48");
+            //attrSelectionNames.add("CFS_BESTFIRST");
             /** 2 Classifier **/
-            classifiersNames.add("RANDOM_FOREST");
-            attrSelectionNames.add("CFS_GREEDYSTEPWISE");
+            //classifiersNames.add("RANDOM_FOREST");
+            //attrSelectionNames.add("CFS_GREEDYSTEPWISE");
 
             if(classifiersNames.size() != attrSelectionNames.size()){
                 System.err.println("Error: classifier definition is wrong!");
@@ -139,6 +143,13 @@ public class Driver2 {
                 visualizer.addResult(r);
                 visualizer.printResultAcc(r);
             }
+
+
+            if(j!=0) {
+                for(Result ur: incrClassifier.update(sdf1.format(dateStart), sdf1.format(dateEnd)))
+                    visualizer.addResult(ur);
+            }
+
         }
 
         Integer sum = 0;

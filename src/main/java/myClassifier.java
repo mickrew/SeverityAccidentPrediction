@@ -42,13 +42,14 @@ public class myClassifier {
     }
 
     public Result j48(String options) throws Exception{
+        setClass();
         J48 tree = new J48();
         if(options != null)
             tree.setOptions(weka.core.Utils.splitOptions(options));
         timer.startTimer();
         tree.buildClassifier(train);
         Evaluation evaluation = new Evaluation(train);
-        evaluation.evaluateModel(tree,test);
+        evaluation.evaluateModel(tree,train);
         timer.stopTimer();
         ///****/
         //System.out.println(evaluation.toSummaryString("Results:\n", false));
