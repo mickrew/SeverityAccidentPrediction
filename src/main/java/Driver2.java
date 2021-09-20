@@ -24,7 +24,7 @@ public class Driver2 {
     /*************/
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
-    private final static int DRIFT =4;
+    private final static int DRIFT =2;
     private final static int NUM_ITERATION = 10;
     private final static String dateString = "2018-01-01 00:00:00";
 
@@ -92,10 +92,10 @@ public class Driver2 {
 
         // 1 Classifier
         classifiersNames.add("J48");
-        attrSelectionNames.add("CFS_BESTFIRST");
+        attrSelectionNames.add("CFS_GREEDYSTEPWISE");
         // 2 Classifier
-        //classifiersNames.add("RANDOM_FOREST");
-        //attrSelectionNames.add("CFS_GREEDYSTEPWISE");
+        classifiersNames.add("RANDOM_FOREST");
+        attrSelectionNames.add("CFS_GREEDYSTEPWISE");
         /// 3 Classifier
         //classifiersNames.add("NAIVE_BAYES");
         //attrSelectionNames.add("INFOGAIN_RANKER");
@@ -168,7 +168,7 @@ public class Driver2 {
             List<Instances> dataNotFilteredProva = new ArrayList<>();
             dataNotFilteredProva = loadDataSplitTrainTest(PERCENTAGESPLIT);
             List<Instances> dataFilteredProva = Preprocessor.filter(dataNotFilteredProva.get(0), dataNotFilteredProva.get(1), numInstancesSeverity[3]);
-*/
+            */
             if(j==0 && runUpdatableClassifier) {
                 incrClassifier.buildIncrClassifier("NAIVE_BAYES_UPDATABLE", null);
                 incrClassifier.buildIncrClassifier("HOEFFDING_TREE", null);
@@ -209,8 +209,8 @@ public class Driver2 {
         Integer sum = 0;
         for(Integer i : numTuples)
             sum += i;
-
-        System.out.println("\nMean of tuples taken: " + sum/numTuples.size());
+        if(runUpdatableClassifier)
+            System.out.println("\nMean of tuples taken: " + sum/numTuples.size());
 
         timer.stopTimer();
         NumberFormat formatter = new DecimalFormat("##");

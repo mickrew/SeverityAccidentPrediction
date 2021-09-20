@@ -30,7 +30,7 @@ public class Driver {
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int) System.currentTimeMillis();
     private final static int DRIFT = 4;
-    private final static int NUM_ITERATION = 3;
+    private final static int NUM_ITERATION = 10;
     private final static String dateString = "2016-02-01 00:00:00";
     private final static boolean FIXEDGRANULARITY = false;
 

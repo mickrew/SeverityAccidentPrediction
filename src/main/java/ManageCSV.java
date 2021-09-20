@@ -17,7 +17,7 @@ public class ManageCSV {
     private int[] countSeverity = new int[4];
     private int countTuples =0;
     private Double percentageSeverity4 = 1.0;
-    private Double percentageSeverity2 = 1.0;
+    private Double percentageSeverity2 = 0.8;
     private Double percentageSeverity1 = 0.7;
     private Double percentageSeverity3 = 0.8;
     private int THRESHOLD = 75000;
@@ -76,6 +76,7 @@ public class ManageCSV {
 
     public Date getTuplesFromDB(Date dateStart, boolean fixedGranularity) throws IOException, ParseException {
         list.clear();
+
         FileWriter write = new FileWriter("temple.csv");
         CSVWriter csvWriter = new CSVWriter(write);
         write.write(header);
