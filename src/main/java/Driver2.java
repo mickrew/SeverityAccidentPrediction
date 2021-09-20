@@ -22,13 +22,14 @@ public class Driver2 {
     /*************/
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
-    private final static int DRIFT =4;
-    private final static int NUM_ITERATION = 10;
-    private final static String dateString = "2019-01-01 00:00:00";
+    private final static int DRIFT =2;
+    private final static int NUM_ITERATION = 1;
+    private final static String dateString = "2020-01-01 00:00:00";
+
     private final static boolean FIXEDGRANULARITY = true;
 
     private static boolean CROSS_VALIDATION = false;
-    private static int GRANULARITY = 4;
+    private static int GRANULARITY = 24;
     /*************/
 
     public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
@@ -72,21 +73,28 @@ public class Driver2 {
 
         Date dateStart = sdf.parse(dateString);
         Date dateEnd, dateBegin = sdf.parse(dateString);
+        Date dateLimit = sdf.parse("2020-12-31 23:59:59");
 
         manager.setGranularity(GRANULARITY);
         //int lastGranularity= manager.getGranularity();
 
-        for (int j= 0; j<NUM_ITERATION; j++) {
+        boolean lastIteration=false;
+
+        for (int j= 0; j<NUM_ITERATION && !lastIteration; j++) {
             System.out.println("==========================================");
             System.out.println("Num Iteration: " + Integer.valueOf(j+1) + "/" + Integer.valueOf(NUM_ITERATION));
             //lastGranularity= manager.getGranularity();
 
             dateStart = DateUtils.addWeeks(sdf.parse(dateString), DRIFT*j);
+            Date prevDateEnd = DateUtils.addWeeks(dateStart, manager.getGranularity());
+            if (prevDateEnd.getTime() > dateLimit.getTime())
+                lastIteration = true;
 
             System.out.println("==========================================");
             System.out.println("===> Start Reading");
 
             dateEnd = manager.getTuplesFromDB(dateStart, FIXEDGRANULARITY);
+
             manager.writeCSV("temple.csv");
             manager.printCoutnSeverity();
             manager.reduceList();
@@ -110,11 +118,11 @@ public class Driver2 {
             List<String> attrSelectionNames = new ArrayList<>();
             /** 1 Classifier **/
             classifiersNames.add("J48");
-            attrSelectionNames.add("no");
-            //attrSelectionNames.add("CFS_BESTFIRST");
+            //attrSelectionNames.add("no");
+            attrSelectionNames.add("CFS_BESTFIRST");
             /** 2 Classifier **/
-            //classifiersNames.add("RANDOM_FOREST");
-            //attrSelectionNames.add("CFS_GREEDYSTEPWISE");
+            classifiersNames.add("RANDOM_FOREST");
+            attrSelectionNames.add("CFS_GREEDYSTEPWISE");
 
             if(classifiersNames.size() != attrSelectionNames.size()){
                 System.err.println("Error: classifier definition is wrong!");
