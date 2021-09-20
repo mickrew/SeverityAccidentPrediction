@@ -143,7 +143,7 @@ public class Visualizer{
         r.weightedPrecision = eval.weightedPrecision();
         r.weightedRecall = eval.weightedRecall();
         r.weightedFMeasure = eval.weightedFMeasure();
-        r.summaryEval = eval.toSummaryString();
+        r.summaryEval = eval.toString();
         r.confusionMatrix = eval.toMatrixString();
         return r;
         /****************************************************************************************/
