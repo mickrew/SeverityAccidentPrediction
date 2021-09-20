@@ -1,4 +1,5 @@
 import weka.attributeSelection.*;
+import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.meta.AttributeSelectedClassifier;
@@ -101,10 +102,10 @@ public class AttrSelectedClassifier {
             classifier.buildClassifier(datasets.get(0));
             evaluation.evaluateModel(classifier,datasets.get(1));
 
-            if(classifier.getClassifier() instanceof J48)
-                printAttributeSelected("J48_AttrSelected.csv");
-            else if(classifier.getClassifier() instanceof RandomForest)
-                printAttributeSelected("RandomForest_AttrSelected.csv");
+            if(classifier.getClassifier() instanceof J48);
+                //printAttributeSelected("J48_AttrSelected.csv");
+            else if(classifier.getClassifier() instanceof RandomForest);
+                //rintAttributeSelected("RandomForest_AttrSelected.csv");
 
             // =====>Model Complexity extraction and printing to Console
             //       Problem: RandomForest and CrossValidation clean all results and model at the end of evaluation.
@@ -114,28 +115,17 @@ public class AttrSelectedClassifier {
             }
             */
         }
-        // ====> automatic computed time extraction:
-        //       Problem: RandomForest and CrossValidation clean all results and model at the end of evaluation.
-        //double time = classifier.measureTime();
         timer.stopTimer();
-
-
-
-
         ///****/
         //System.out.println(evaluation.toSummaryString("Results:\n", false));
         //System.out.println(evaluation.toClassDetailsString());
         //System.out.println(evaluation.toMatrixString());
         //System.out.println(evaluation.pctCorrect());
         ///****/
-
         return Visualizer.evalResult(evaluation, classifierName, attrEvalName,timer.getTime(), startDate, endDate);
     }
 
-
-
     /***************************** Attribute Evaluation Methods *****************************/
-
     /*
     ------------- CfsSubsetEval options
           -M        Treat missing values as a separate value.
@@ -158,7 +148,6 @@ public class AttrSelectedClassifier {
         -D <0 = backward | 1 = forward | 2 = bi-directional>       Direction of search. (default = 1).
         -N <num>    Number of non-improving nodes to consider before terminating search.
         -S <num>    Size of lookup cache for evaluated subsets. Expressed as a multiple of the number of attributes in the data set. (default = 1)
-
     */
     private void bestFirst(String optionsSearch) throws Exception {
         BestF_Search = new BestFirst();
@@ -202,7 +191,6 @@ public class AttrSelectedClassifier {
         -P <start set>  Specify a starting set of attributes. Eg. 1,3,5-7. Any starting attributes specified are ignored during the ranking.
         -T <threshold>  Specify a theshold by which attributes may be discarded from the ranking.
         -N <num to select>  Specify number of attributes to select
-
      */
     public void ranker(String optionsSearch) throws Exception {
         ranker_Search = new Ranker();
@@ -229,7 +217,6 @@ public class AttrSelectedClassifier {
     /****************************************************************************************/
 
     /****************************** Classifiers Methods *************************************/
-
     /*
      ----------------- J48 Options
         -U          Use unpruned tree.
@@ -297,6 +284,7 @@ public class AttrSelectedClassifier {
     }
 
     /****************************************************************************************/
+
     private void printAttributeSelected(String nomeFile) throws Exception{
         String info = classifier.toString();
         String attrSelInformation = info.substring(info.indexOf("Selected attributes:"), info.indexOf("Header of reduced data:"));
