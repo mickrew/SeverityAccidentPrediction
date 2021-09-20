@@ -25,14 +25,15 @@ public class Driver2 {
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
     private final static int DRIFT =4;
-    private final static int NUM_ITERATION = 10;
-    private final static String dateString = "2018-01-01 00:00:00";
+    private final static int NUM_ITERATION = 1000;
+    private final static String dateString = "2016-02-01 00:00:00";
 
     private final static boolean FIXEDGRANULARITY = true;
 
     private static boolean CROSS_VALIDATION = false;
     private static int GRANULARITY = 4;
     /*************/
+
 
     public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
         ManageCSV manager = new ManageCSV();
@@ -66,15 +67,27 @@ public class Driver2 {
         ManageCSV manager = new ManageCSV();
 
         String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION)+ "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + (CROSS_VALIDATION?"_CR":"" ) + ".txt";
-        Visualizer visualizer = new Visualizer("results\\" +nameFile);
-        List<String> attrNames = new ArrayList<>();
-        attrNames.add("cfs_BestFirst");
-        attrNames.add("cfs_GreedyStepWise");
-        attrNames.add("InfoGain_Ranker");
+        Visualizer visualizer = new Visualizer("results\\" +nameFile, manager);
+
+
+        /**************** with Attribute Selection *******************/
+
+        List<String> classifiersNames = new ArrayList<>();
+        List<String> attrSelectionNames = new ArrayList<>();
+
+        // 1 Classifier
+        classifiersNames.add("J48");
+        attrSelectionNames.add("CFS_BESTFIRST");
+        // 2 Classifier
+        classifiersNames.add("RANDOM_FOREST");
+        attrSelectionNames.add("CFS_GREEDYSTEPWISE");
+        /// 3 Classifier
+        classifiersNames.add("NAIVE_BAYES");
+        attrSelectionNames.add("INFOGAIN_RANKER");
 
         Date dateStart = sdf.parse(dateString);
         Date dateEnd, dateBegin = sdf.parse(dateString);
-        Date dateLimit = sdf.parse("2020-12-31 23:59:59");
+        Date dateLimit = sdf.parse("2029-12-31 23:59:59");
 
         manager.setGranularity(GRANULARITY);
         //int lastGranularity= manager.getGranularity();
@@ -118,15 +131,6 @@ public class Driver2 {
             System.out.println("------------------------------------");
             System.out.println("===> Start Classifying");
 
-            /**************** with Attribute Selection *******************/
-            List<String> classifiersNames = new ArrayList<>();
-            List<String> attrSelectionNames = new ArrayList<>();
-            /** 1 Classifier **/
-            //classifiersNames.add("J48");
-            //attrSelectionNames.add("CFS_BESTFIRST");
-            /** 2 Classifier **/
-            //classifiersNames.add("RANDOM_FOREST");
-            //attrSelectionNames.add("CFS_GREEDYSTEPWISE");
 
             if(classifiersNames.size() != attrSelectionNames.size()){
                 System.err.println("Error: classifier definition is wrong!");
@@ -144,10 +148,13 @@ public class Driver2 {
                 visualizer.printResultAcc(r);
             }
 
+            System.out.println("NAIVE_BAYES_UPDATABLE and HOEFFDING_TREE are running concurrently");
 
             if(j!=0) {
-                for(Result ur: incrClassifier.update(sdf1.format(dateStart), sdf1.format(dateEnd)))
+                for(Result ur: incrClassifier.update(sdf1.format(dateStart), sdf1.format(dateEnd))) {
                     visualizer.addResult(ur);
+                    visualizer.printResultAcc(ur);
+                }
             }
 
         }

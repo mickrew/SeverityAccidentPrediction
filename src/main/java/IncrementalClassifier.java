@@ -47,7 +47,7 @@ public class IncrementalClassifier {
             Evaluation eval1 = new Evaluation(instancesTrain);
             eval1.crossValidateModel(ht, instancesTrain, 10, new Debug.Random(5));
 
-            System.out.println(eval.toSummaryString("Results Test:\n", false));
+            System.out.println(eval.toSummaryString("Results Test Naive :\n", false));
             System.out.println(eval.toMatrixString());
             System.out.println(eval.pctCorrect());
             System.out.println(eval.errorRate());

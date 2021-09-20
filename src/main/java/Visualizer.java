@@ -20,8 +20,9 @@ public class Visualizer{
     private String outputFile;
     private String incrOutputFile;
     private boolean isFirstTimeAcc=true;
+    private ManageCSV manager;
 
-    public Visualizer(String outputFile) throws IOException {
+    public Visualizer(String outputFile, ManageCSV manager) throws IOException {
         this.outputFile = outputFile;
         incrOutputFile = "Incremental"+outputFile;
         File f = new File(outputFile);
@@ -32,6 +33,7 @@ public class Visualizer{
         if(f.exists()) {
             f.delete();
         }
+        this.manager = manager;
     }
 
     public void addResult(Result r) throws IOException{
@@ -104,19 +106,37 @@ public class Visualizer{
     public static Result evalResult(Evaluation eval, String classifierName, String attrSelName, String time, String startDate, String endDate) throws Exception{
         Result r = new Result();
         r.classifier = classifierName;
-        r.attrSel = attrSelName;
+        r.attrSel = (attrSelName==null)?" No Attr Sel":attrSelName;
         r.startDate = startDate;
         r.endDate = endDate;
         r.timeRequired = time;
         r.accuracy = eval.pctCorrect();
         r.totSamples = eval.numInstances();
-        r.classSamples = eval.getClassPriors();
+        //casi in cui count della severity1 è 0
+        if (eval.getClassPriors().length < 4){
+            r.classSamples = new double[4];
+            r.classSamples[0]=0.0;
+            r.classSamples[1]=eval.getClassPriors()[0];
+            r.classSamples[2]=eval.getClassPriors()[1];
+            r.classSamples[3]=eval.getClassPriors()[2];
+        } else
+            r.classSamples = eval.getClassPriors();
+
         for(int i=0; i<4; i++) {
-            r.classTPR[i] = eval.truePositiveRate(i);
-            r.classFPR[i] = eval.falsePositiveRate(i);
-            r.precision[i] = eval.precision(i);
-            r.recall[i] = eval.recall(i);
-            r.fMeasure[i] = eval.fMeasure(i);
+            try {
+                r.classTPR[i] = eval.truePositiveRate(i);
+                r.classFPR[i] = eval.falsePositiveRate(i);
+                r.precision[i] = eval.precision(i);
+                r.recall[i] = eval.recall(i);
+                r.fMeasure[i] = eval.fMeasure(i);
+            } catch (ArrayIndexOutOfBoundsException e){
+                r.classTPR[i] = 0.0;
+                r.classFPR[i] = 0.0;
+                r.precision[i] = 0.0;
+                r.recall[i] = 0.0;
+                r.fMeasure[i] = 0.0;
+            }
+
         }
         r.weightedTPR = eval.weightedTruePositiveRate();
         r.weightedFPR = eval.weightedFalsePositiveRate();

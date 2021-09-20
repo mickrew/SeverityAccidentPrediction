@@ -75,7 +75,7 @@ public class Driver {
         ManageCSV manager = new ManageCSV();
 
         String nameFile = dateString.split(" ")[0] + "_" + String.valueOf(NUM_ITERATION) + "_DR" + String.valueOf(DRIFT) + "_GR" + String.valueOf(GRANULARITY) + "_" + ".txt";
-        Visualizer incrVisualizer = new Visualizer("results\\" + "updateable" + nameFile);
+        Visualizer incrVisualizer = new Visualizer("results\\" + "updateable" + nameFile, manager);
         /*List<String> attrNames = new ArrayList<>();
         attrNames.add("cfs_BestFirst");
         attrNames.add("cfs_GreedyStepWise");
@@ -141,7 +141,7 @@ public class Driver {
 
 
             ArffLoader loader = new ArffLoader();
-            loader.setSource(new File("data\\dataFiltered.arff"));
+            loader.setSource(new File("train.arff"));
             Instances structure = loader.getStructure();
             structure.setClassIndex(0);
 
@@ -151,7 +151,7 @@ public class Driver {
             }
 
             Instance current;
-            while ((current = loader.getNextInstance(dataFiltered.get(0))) != null)
+            while ((current = loader.getNextInstance(structure)) != null)
                 nBayesUpdatable.updateClassifier(current);
             /*
             for (Instance sample : dataFiltered.get(0))
