@@ -137,7 +137,6 @@ public class Visualizer{
                 r.recall[i] = 0.0;
                 r.fMeasure[i] = 0.0;
             }
-
         }
         r.weightedTPR = eval.weightedTruePositiveRate();
         r.weightedFPR = eval.weightedFalsePositiveRate();

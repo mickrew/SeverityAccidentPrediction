@@ -23,6 +23,7 @@ public class ManageCSV {
     private int THRESHOLD = 75000;
     private int granularity = 4;
 
+
     private ArrayList<String[]> list = new ArrayList<>();
 
     public ManageCSV() throws FileNotFoundException {
@@ -75,6 +76,7 @@ public class ManageCSV {
     }
 
     public Date getTuplesFromDB(Date dateStart, boolean fixedGranularity) throws IOException, ParseException {
+
         list.clear();
 
         FileWriter write = new FileWriter("temple.csv");
