@@ -32,7 +32,7 @@ public class IncrClassifier {
 
     public void buildIncrClassifier(String classifierName, String classifierOptions) throws Exception {
         ArffLoader loader = new ArffLoader();
-        loader.setFile(new File("train.arff"));
+        loader.setFile(new File("TrainSetFiltered.arff"));
         structure = loader.getStructure();
         structure.setClassIndex(0);
 

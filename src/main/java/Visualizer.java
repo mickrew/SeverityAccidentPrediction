@@ -125,6 +125,7 @@ public class Visualizer{
         for(int i=0; i<4; i++) {
             try {
                 r.classTPR[i] = eval.truePositiveRate(i);
+
                 r.classFPR[i] = eval.falsePositiveRate(i);
                 r.precision[i] = eval.precision(i);
                 r.recall[i] = eval.recall(i);

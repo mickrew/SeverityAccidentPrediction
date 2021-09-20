@@ -29,6 +29,7 @@ public class Driver2 {
     private final static String dateString = "2018-01-01 00:00:00";
 
     private final static boolean FIXEDGRANULARITY = true;
+    private final static boolean runUpdatableClassifier = false;
 
     private static boolean CROSS_VALIDATION = false;
     private static int GRANULARITY = 4;
@@ -57,7 +58,7 @@ public class Driver2 {
         source.setNominalAttributes("1-4,12-20,21,27,30-47,49,50");
         source.setNumericAttributes("5-9,11,22-26,28,29,48");
         source.setStringAttributes("10");
-        source.setSource(new File("templeReduced.csv"));
+        source.setSource(new File("TrainingSet.csv"));
 
         final Instances dataSet = source.getDataSet();
         dataSet.randomize(new Random(randomSeed));
@@ -93,11 +94,11 @@ public class Driver2 {
         classifiersNames.add("J48");
         attrSelectionNames.add("CFS_BESTFIRST");
         // 2 Classifier
-        classifiersNames.add("RANDOM_FOREST");
-        attrSelectionNames.add("CFS_GREEDYSTEPWISE");
+        //classifiersNames.add("RANDOM_FOREST");
+        //attrSelectionNames.add("CFS_GREEDYSTEPWISE");
         /// 3 Classifier
-        classifiersNames.add("NAIVE_BAYES");
-        attrSelectionNames.add("INFOGAIN_RANKER");
+        //classifiersNames.add("NAIVE_BAYES");
+        //attrSelectionNames.add("INFOGAIN_RANKER");
 
         Date dateStartTraining = sdf.parse(dateString);
         Date dateEnd;
@@ -142,23 +143,33 @@ public class Driver2 {
             System.out.println("-------------");
             System.out.println("Read Test Set");
             System.out.println("-------------");
+
             dateEndTestSet = manager.getTuplesFromDB(dateStartTest, FIXEDGRANULARITY);
             manager.writeCSV("TestSet.csv");
-
+            manager.printCoutnSeverity();
 
             //manager.saveARFF(new File("templeReduced.csv"));
 
             numTuples.add(manager.getCountTuples());
 
-            List<Instances> dataNotFiltered = new ArrayList<>();
+
 
             Instances trainingSet = loadData("TrainingSet.csv");
             Instances testSet = loadData("TestSet.csv");
 
             int[] numInstancesSeverity = manager.getCountSeverity();
+
+            //dataFiltered
+            //0 - TrainingSet
+            //1 - TestSet
             List<Instances> dataFiltered = Preprocessor.filter(trainingSet, testSet, numInstancesSeverity[3]);
 
-            if(j==0) {
+            /*
+            List<Instances> dataNotFilteredProva = new ArrayList<>();
+            dataNotFilteredProva = loadDataSplitTrainTest(PERCENTAGESPLIT);
+            List<Instances> dataFilteredProva = Preprocessor.filter(dataNotFilteredProva.get(0), dataNotFilteredProva.get(1), numInstancesSeverity[3]);
+*/
+            if(j==0 && runUpdatableClassifier) {
                 incrClassifier.buildIncrClassifier("NAIVE_BAYES_UPDATABLE", null);
                 incrClassifier.buildIncrClassifier("HOEFFDING_TREE", null);
             }
@@ -175,6 +186,7 @@ public class Driver2 {
             for(int i=0; i < classifiersNames.size(); i++){
                 AttrSelectedClassifier classifier = new AttrSelectedClassifier(dataFiltered,CROSS_VALIDATION,
                                                     sdf1.format(dateStartTraining), sdf1.format(dateEnd));
+
                 System.out.println(classifiersNames.get(i)+" is running");
                 Result r = classifier.start(attrSelectionNames.get(i),null, null,
                                             classifiersNames.get(i),null);
@@ -185,7 +197,7 @@ public class Driver2 {
 
             System.out.println("NAIVE_BAYES_UPDATABLE and HOEFFDING_TREE are running concurrently");
 
-            if(j!=0) {
+            if(j!=0 && runUpdatableClassifier) {
                 for(Result ur: incrClassifier.update(sdf1.format(dateStartTraining), sdf1.format(dateEnd))) {
                     visualizer.addResult(ur);
                     visualizer.printResultAcc(ur);
