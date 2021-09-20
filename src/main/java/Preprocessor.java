@@ -138,7 +138,12 @@ public class Preprocessor {
 
         ArffSaver saver = new ArffSaver();
         saver.setInstances(newTrain);
-        saver.setFile(new File("train.arff"));
+        saver.setFile(new File("TrainSetFiltered.arff"));
+        saver.writeBatch();
+
+        saver = new ArffSaver();
+        saver.setInstances(newTrain);
+        saver.setFile(new File("TestSetFiltered.arff"));
         saver.writeBatch();
 
         //Instances newTrain = Filter.useFilter(train, mf);

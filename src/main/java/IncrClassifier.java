@@ -61,7 +61,7 @@ public class IncrClassifier {
         this.endDate = endDate;
 
         ArffLoader loader = new ArffLoader();
-        loader.setFile(new File("train.arff"));
+        loader.setFile(new File("TrainSetFiltered.arff"));
         structure = loader.getStructure();
         structure.setClassIndex(0);
 
@@ -76,7 +76,7 @@ public class IncrClassifier {
             }
         }
         loader = new ArffLoader();
-        loader.setFile(new File("train.arff"));
+        loader.setFile(new File("TestSetFiltered.arff"));
         Instances instancesTrain = loader.getDataSet();
         instancesTrain.setClassIndex(0);
 

@@ -25,8 +25,8 @@ public class Driver2 {
     private static double PERCENTAGESPLIT = 66.0;
     private final static int randomSeed = (int)System.currentTimeMillis();
     private final static int DRIFT =4;
-    private final static int NUM_ITERATION = 1000;
-    private final static String dateString = "2016-02-01 00:00:00";
+    private final static int NUM_ITERATION = 10;
+    private final static String dateString = "2018-01-01 00:00:00";
 
     private final static boolean FIXEDGRANULARITY = true;
 
@@ -34,6 +34,20 @@ public class Driver2 {
     private static int GRANULARITY = 4;
     /*************/
 
+
+    public static Instances loadData(String file) throws Exception {
+        CSVLoader source = new CSVLoader();
+        //DataSource source = new DataSource("templeLoad.arff");
+        source.setMissingValue("nan");
+        source.setNominalAttributes("1-4,12-20,21,27,30-47,49,50");
+        source.setNumericAttributes("5-9,11,22-26,28,29,48");
+        source.setStringAttributes("10");
+        source.setSource(new File(file));
+
+        Instances dataSet = source.getDataSet();
+
+        return dataSet;
+    }
 
     public static List<Instances> loadDataSplitTrainTest(double trainPercentage) throws Exception {
         ManageCSV manager = new ManageCSV();
@@ -85,9 +99,9 @@ public class Driver2 {
         classifiersNames.add("NAIVE_BAYES");
         attrSelectionNames.add("INFOGAIN_RANKER");
 
-        Date dateStart = sdf.parse(dateString);
-        Date dateEnd, dateBegin = sdf.parse(dateString);
-        Date dateLimit = sdf.parse("2029-12-31 23:59:59");
+        Date dateStartTraining = sdf.parse(dateString);
+        Date dateEnd;
+        Date dateLimit = sdf.parse("2020-12-31 23:59:59");
 
         manager.setGranularity(GRANULARITY);
         //int lastGranularity= manager.getGranularity();
@@ -99,29 +113,50 @@ public class Driver2 {
             System.out.println("Num Iteration: " + Integer.valueOf(j+1) + "/" + Integer.valueOf(NUM_ITERATION));
             //lastGranularity= manager.getGranularity();
 
-            dateStart = DateUtils.addWeeks(sdf.parse(dateString), DRIFT*j);
-            Date prevDateEnd = DateUtils.addWeeks(dateStart, manager.getGranularity());
-            if (prevDateEnd.getTime() > dateLimit.getTime())
+            dateStartTraining = DateUtils.addWeeks(sdf.parse(dateString), DRIFT*j);
+
+            Date prevDateEndTraining = DateUtils.addWeeks(dateStartTraining, manager.getGranularity());
+
+            if (prevDateEndTraining.getTime() > dateLimit.getTime())
+                lastIteration = true;
+
+
+            Date dateEndTestSet = DateUtils.addWeeks(prevDateEndTraining, manager.getGranularity());
+
+            if (prevDateEndTraining.getTime() > dateLimit.getTime())
                 lastIteration = true;
 
             System.out.println("==========================================");
             System.out.println("===> Start Reading");
+            System.out.println("-----------------");
+            System.out.println("Read Training Set");
+            System.out.println("-----------------");
+            dateEnd = manager.getTuplesFromDB(dateStartTraining, FIXEDGRANULARITY);
+            Date dateStartTest = dateEnd;
 
-            dateEnd = manager.getTuplesFromDB(dateStart, FIXEDGRANULARITY);
-
-            manager.writeCSV("temple.csv");
+            //manager.writeCSV("temple.csv");
             manager.printCoutnSeverity();
             manager.reduceList();
             manager.printCoutnSeverity();
-            manager.writeCSV("templeReduced.csv");
+            manager.writeCSV("TrainingSet.csv");
+            System.out.println("-------------");
+            System.out.println("Read Test Set");
+            System.out.println("-------------");
+            dateEndTestSet = manager.getTuplesFromDB(dateStartTest, FIXEDGRANULARITY);
+            manager.writeCSV("TestSet.csv");
+
+
             //manager.saveARFF(new File("templeReduced.csv"));
 
             numTuples.add(manager.getCountTuples());
 
-            List<Instances> dataNotFiltered = loadDataSplitTrainTest(PERCENTAGESPLIT);
+            List<Instances> dataNotFiltered = new ArrayList<>();
+
+            Instances trainingSet = loadData("TrainingSet.csv");
+            Instances testSet = loadData("TestSet.csv");
 
             int[] numInstancesSeverity = manager.getCountSeverity();
-            List<Instances> dataFiltered = Preprocessor.filter(dataNotFiltered.get(0), dataNotFiltered.get(1), numInstancesSeverity[3]);
+            List<Instances> dataFiltered = Preprocessor.filter(trainingSet, testSet, numInstancesSeverity[3]);
 
             if(j==0) {
                 incrClassifier.buildIncrClassifier("NAIVE_BAYES_UPDATABLE", null);
@@ -139,7 +174,7 @@ public class Driver2 {
 
             for(int i=0; i < classifiersNames.size(); i++){
                 AttrSelectedClassifier classifier = new AttrSelectedClassifier(dataFiltered,CROSS_VALIDATION,
-                                                    sdf1.format(dateStart), sdf1.format(dateEnd));
+                                                    sdf1.format(dateStartTraining), sdf1.format(dateEnd));
                 System.out.println(classifiersNames.get(i)+" is running");
                 Result r = classifier.start(attrSelectionNames.get(i),null, null,
                                             classifiersNames.get(i),null);
@@ -151,7 +186,7 @@ public class Driver2 {
             System.out.println("NAIVE_BAYES_UPDATABLE and HOEFFDING_TREE are running concurrently");
 
             if(j!=0) {
-                for(Result ur: incrClassifier.update(sdf1.format(dateStart), sdf1.format(dateEnd))) {
+                for(Result ur: incrClassifier.update(sdf1.format(dateStartTraining), sdf1.format(dateEnd))) {
                     visualizer.addResult(ur);
                     visualizer.printResultAcc(ur);
                 }

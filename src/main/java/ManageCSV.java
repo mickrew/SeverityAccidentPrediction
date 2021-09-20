@@ -169,7 +169,7 @@ public class ManageCSV {
 
 
         System.out.println("Range dates from " + sdf1.format(dateStart) + " to " + sdf1.format(dateEnd));
-        System.out.println("Read\t" + count  + " tuples");
+        //System.out.println("Read\t" + count  + " tuples");
         System.out.println("Extracted\t" + list.size() + " tuples");
 
         //System.out.println("Saving files ... ... ... ");
@@ -181,7 +181,7 @@ public class ManageCSV {
         Timer t = new Timer();
         t.startTimer();
 
-        System.out.println("File .csv saved ");
+
 
         t.stopTimer();
         //t.printTimer();
@@ -307,7 +307,7 @@ public class ManageCSV {
         }
         csvWriter.close();
         write.close();
-
+        System.out.println("File" + name +" saved ");
     }
 
     public void saveARFF(File file) throws IOException {
