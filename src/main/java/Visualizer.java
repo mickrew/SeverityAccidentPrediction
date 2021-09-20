@@ -161,9 +161,10 @@ public class Visualizer{
         //Date date = new Date();
         //SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-        String filenameAcc = "statistics\\accuracy_"+r.classifier+"_"+r.attrSel+".csv";
+        //String filenameAcc = "statistics\\accuracy_"+r.classifier+"_"+r.attrSel+".csv";
+        String filenameFmeasure = "statistics\\fmeasure_"+r.classifier+"_"+r.attrSel+".csv";
 
-        FileWriter fileWriterAcc = new FileWriter(filenameAcc,true);
+        FileWriter fileWriterAcc = new FileWriter(filenameFmeasure,true);
         PrintWriter printWriterAcc = new PrintWriter(fileWriterAcc);
 
         printAccuracy(printWriterAcc, r);
@@ -174,6 +175,11 @@ public class Visualizer{
 
     public void printAccuracy(PrintWriter printWriter3, Result r){
         NumberFormat formatter = new DecimalFormat("#.###");
-        printWriter3.printf("%s,%s,%s\n", r.startDate,r.endDate,formatter.format(r.accuracy).replace(",","."));
-        }
+        //printWriter3.printf("%s,%s,%s\n", r.startDate,r.endDate,formatter.format(r.accuracy).replace(",","."));
+        printWriter3.printf("%s,%s,", r.startDate,r.endDate);
+        for(int i=0; i<r.fMeasure.length; i++)
+            printWriter3.printf("%s,",formatter.format(r.fMeasure[i]).replace(",","."));
+        printWriter3.printf("%s\n",formatter.format(r.weightedFMeasure).replace(",","."));
+    }
+
 }
