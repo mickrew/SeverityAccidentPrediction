@@ -32,7 +32,7 @@ public class IncrClassifier {
 
     public void buildIncrClassifier(String classifierName, String classifierOptions) throws Exception {
         ArffLoader loader = new ArffLoader();
-        loader.setFile(new File("TrainSetFiltered.arff"));
+        loader.setFile(new File("TrainSetFiltered1.arff"));
         structure = loader.getStructure();
         structure.setClassIndex(0);
 
@@ -61,7 +61,7 @@ public class IncrClassifier {
         this.endDate = endDate;
 
         ArffLoader loader = new ArffLoader();
-        loader.setFile(new File("TrainSetFiltered.arff"));
+        loader.setFile(new File("TrainSetFiltered1.arff"));
         structure = loader.getStructure();
         structure.setClassIndex(0);
 
@@ -76,7 +76,7 @@ public class IncrClassifier {
             }
         }
         loader = new ArffLoader();
-        loader.setFile(new File("TestSetFiltered.arff"));
+        loader.setFile(new File("TestSetFiltered1.arff"));
         Instances instancesTrain = loader.getDataSet();
         instancesTrain.setClassIndex(0);
 

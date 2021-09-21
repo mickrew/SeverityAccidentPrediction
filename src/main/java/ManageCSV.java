@@ -22,11 +22,13 @@ public class ManageCSV {
     private Double percentageSeverity3 = 0.8;
     private int THRESHOLD = 75000;
     private int granularity = 4;
+    private Date startDataset;
 
 
     private ArrayList<String[]> list = new ArrayList<>();
 
-    public ManageCSV() throws FileNotFoundException {
+    public ManageCSV(Date dastestart) throws FileNotFoundException {
+        startDataset=dastestart;
     }
 
     private void initializeCountSeverity(){
@@ -38,12 +40,8 @@ public class ManageCSV {
 
 
     public void  reduceList(){
-        /* For testing
-        ArrayList<String[]> prova = new ArrayList<>();
-        prova.addAll(list);
-        */
 
-                //int[] tmpCountSeverity = countSeverity;
+        Collections.shuffle(list);
 
         Iterator itr = list.iterator();
         String[] tmp;
@@ -75,7 +73,7 @@ public class ManageCSV {
         countTuples = list.size();
     }
 
-    public Date getTuplesFromDB(Date dateStart, boolean fixedGranularity) throws IOException, ParseException {
+    public Date getTuplesFromDB(Date dateStartTraining, boolean fixedGranularity, Date dateEndTraining, Date dateLimit) throws IOException, ParseException {
 
         list.clear();
 
@@ -86,17 +84,12 @@ public class ManageCSV {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 
-        Date dateLimit = sdf.parse("2020-12-31 23:59:59");
+        Date tmp = dateStartTraining;
 
-        Date dateEnd = DateUtils.addWeeks(dateStart, granularity);
-        if (dateEnd.getTime() > dateLimit.getTime())
-            dateEnd=dateLimit;
-
-        Date tmp = dateStart;
         ArrayList<String> nameFiles = new ArrayList<>();
 
-        for(int i =0; tmp.getTime()<=dateEnd.getTime(); i++){
-            tmp = DateUtils.addMonths(dateStart, i);
+        for(int i =0; tmp.getTime()<=dateEndTraining.getTime(); i++){
+            tmp = DateUtils.addMonths(dateStartTraining, i);
             if (tmp.getTime()>dateLimit.getTime())
                 break;
             String month = String.valueOf(tmp.getMonth()+1);
@@ -130,7 +123,7 @@ public class ManageCSV {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                if (date.getTime() >= dateStart.getTime() && date.getTime() <= dateEnd.getTime()) {
+                if (date.getTime() >= dateStartTraining.getTime() && date.getTime() <= dateEndTraining.getTime()) {
 
                     int severity = Integer.valueOf(nextLine[1]);
                     if (severity <= 4 && severity >= 1)
@@ -146,8 +139,8 @@ public class ManageCSV {
             if (list.size() > 1.5 * THRESHOLD) {
 
                 granularity -= 1;// (int) (0.5 * granularity);
-                Date dateLastEnd = dateEnd;
-                dateEnd = DateUtils.addWeeks(dateStart, granularity);
+                Date dateLastEnd = dateEndTraining;
+                dateEndTraining = DateUtils.addWeeks(dateStartTraining, granularity);
 
                 System.out.println("reduce granularity: " + list.size() + " is over  " + 1.5 * THRESHOLD + "\tnew value = " + granularity);
                 //System.out.println("Change dateEnd from "+sdf.format(dateLastEnd)+" to " + sdf.format(dateEnd));
@@ -171,7 +164,7 @@ public class ManageCSV {
 
 
 
-        System.out.println("Range dates from " + sdf1.format(dateStart) + " to " + sdf1.format(dateEnd));
+        System.out.println("Range dates from " + sdf1.format(dateStartTraining) + " to " + sdf1.format(dateEndTraining));
         //System.out.println("Read\t" + count  + " tuples");
         System.out.println("Extracted\t" + list.size() + " tuples");
 
@@ -204,7 +197,7 @@ public class ManageCSV {
         t.printTimer();
         */
 
-        return dateEnd;
+        return dateEndTraining;
     }
 
     public void getTuples(Date dateStart, int granularity) throws IOException {
@@ -347,6 +340,13 @@ public class ManageCSV {
     public void printCoutnSeverity(){
         for (int i=0; i< countSeverity.length; i++){
             System.out.println("Severity" + Integer.valueOf(i+1) +": " + countSeverity[i]);
+        }
+    }
+
+    public void deleteFile(String nameFile){
+        File f = new File(nameFile);
+        if (f.exists()) {
+            f.delete();
         }
     }
 

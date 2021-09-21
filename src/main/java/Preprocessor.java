@@ -135,16 +135,18 @@ public class Preprocessor {
         newTest = Filter.useFilter(newTest, replaceFilter);
         newTest = Filter.useFilter(newTest, sortLabelsFilter);
 
-
+        deleteFile("TrainSetFiltered1.arff");
         ArffSaver saver = new ArffSaver();
         saver.setInstances(newTrain);
-        saver.setFile(new File("TrainSetFiltered.arff"));
+        saver.setFile(new File("TrainSetFiltered1.arff"));
         saver.writeBatch();
 
+        deleteFile("TestSetFiltered1.arff");
         saver = new ArffSaver();
         saver.setInstances(newTrain);
-        saver.setFile(new File("TestSetFiltered.arff"));
+        saver.setFile(new File("TestSetFiltered1.arff"));
         saver.writeBatch();
+
 
         //Instances newTrain = Filter.useFilter(train, mf);
         System.out.println("Training Set filtered");
@@ -159,6 +161,13 @@ public class Preprocessor {
 
 
         return list;
+    }
+
+    public static void deleteFile(String nameFile){
+        File f = new File(nameFile);
+        if (f.exists()) {
+            f.delete();
+        }
     }
 
     public static void setRemoveFilter(Remove removeFilter) {
