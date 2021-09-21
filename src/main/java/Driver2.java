@@ -36,17 +36,17 @@ public class Driver2 {
     private final static String HOEFFDING_TREE = "HOEFFDING_TREE";
     private final static int NUM_WEEKS_TRAINING = 12;
 
-    private final static String DATE_STRING_START_DATASET = "2018-01-29 00:00:00";
+    private final static String DATE_STRING_START_DATASET = "2020-03-20 00:00:00";
     private final static String DATE_STRING_START_ANALYSIS = "2018-01-29 00:00:00";
     private final static String DATELIMIT = "2020-12-31 23:59:59";
 
     private final static boolean FIXED_GRANULARITY = true;
     private final static int THRESHOLD_DIMENSION_TRAININGSET = 10000;
     private final static boolean RUN_UPDATABLE_CLASSIFIER = false;
-    private final static boolean LOAD_ALL_TRAINING_AVAILABLE = true; //false = sliding window
+    private final static boolean LOAD_ALL_TRAINING_AVAILABLE = false; //false = sliding window
 
-    private final static int DRIFT =4;
-    private final static int GRANULARITY = 4;
+    private final static int DRIFT =2;
+    private final static int GRANULARITY =2;
     private final static int NUM_ITERATION = 256;
     private final static boolean CROSS_VALIDATION = false;
 
@@ -113,9 +113,12 @@ public class Driver2 {
         // 1 Classifier
         //classifiersNames.add(J48);
         //attrSelectionNames.add(CFS_BESTFIRST);
+        // 1 Classifier
+        //classifiersNames.add(J48);
+        //attrSelectionNames.add(CFS_GREEDYSTEPWISE);
         // 2 Classifier
         classifiersNames.add(RANDOM_FOREST);
-        attrSelectionNames.add(CFS_GREEDYSTEPWISE);
+        attrSelectionNames.add(INFO_GAIN);
         /// 3 Classifier
         //classifiersNames.add(NAIVE_BAYES);
         //attrSelectionNames.add(INFO_GAIN);
@@ -128,6 +131,8 @@ public class Driver2 {
         Date dateEndTraining;
         Date prevDateEndTraining;
         Date dateLimit = sdf.parse(DATELIMIT);
+
+        int countReduce = 0;
 
         int countTrainingSet = 0;
         manager.setGranularity(GRANULARITY);
@@ -142,7 +147,7 @@ public class Driver2 {
 
             prevDateEndTraining = DateUtils.addWeeks(dateStartTraining, manager.getGranularity());
 
-            if (prevDateEndTraining.getTime() > dateLimit.getTime()) {
+            if (prevDateEndTraining.getTime() >= dateLimit.getTime()) {
                 lastIteration = true;
                 dateEndTraining=dateLimit;
             } else
@@ -155,8 +160,10 @@ public class Driver2 {
             System.out.println("Read Training Set");
             System.out.println("-----------------");
 
-            if (countTrainingSet > THRESHOLD_DIMENSION_TRAININGSET)
+            if (countTrainingSet > THRESHOLD_DIMENSION_TRAININGSET) {
                 dateStartDataset = DateUtils.addWeeks(dateStartDataset, manager.getGranularity());
+                countReduce++;
+            }
             if (LOAD_ALL_TRAINING_AVAILABLE)
                 dateStartTraining=dateStartDataset;
 
@@ -175,7 +182,7 @@ public class Driver2 {
 
             Date dateStartTest = dateEndTraining;
 
-            Date dateEndTestSet = DateUtils.addWeeks(dateStartTest, (int) manager.getGranularity()/2);
+            Date dateEndTestSet = DateUtils.addWeeks(dateStartTest, (int) manager.getGranularity());
             if (dateEndTestSet.getTime() > dateLimit.getTime()) {
                 dateEndTestSet=dateLimit;
             }
@@ -249,6 +256,7 @@ public class Driver2 {
         timer.stopTimer();
 
         System.out.println("\nApplication time: " + timer.getTime()+"s");
+        System.out.println("\nCount reduce: " + countReduce);
 
     }
 }
