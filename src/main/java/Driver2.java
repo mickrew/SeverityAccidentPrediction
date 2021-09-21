@@ -34,13 +34,15 @@ public class Driver2 {
     private final static String INFO_GAIN = "INFOGAIN_RANKER";
     private final static String NAIVE_BAYES_UPDATABLE = "NAIVE_BAYES_UPDATABLE";
     private final static String HOEFFDING_TREE = "HOEFFDING_TREE";
+    private final static int NUM_WEEKS_TRAINING = 12;
 
-    private final static String DATE_STRING_START_DATASET = "2017-02-01 00:00:00";
+    private final static String DATE_STRING_START_DATASET = "2018-01-29 00:00:00";
+    private final static String DATE_STRING_START_ANALYSIS = "2018-01-29 00:00:00";
     private final static String DATELIMIT = "2020-12-31 23:59:59";
 
     private final static boolean FIXED_GRANULARITY = true;
     private final static int THRESHOLD_DIMENSION_TRAININGSET = 10000;
-    private final static boolean RUN_UPDATABLE_CLASSIFIER = true;
+    private final static boolean RUN_UPDATABLE_CLASSIFIER = false;
     private final static boolean LOAD_ALL_TRAINING_AVAILABLE = true; //false = sliding window
 
     private final static int DRIFT =4;
@@ -109,14 +111,17 @@ public class Driver2 {
         List<String> attrSelectionNames = new ArrayList<>();
 
         // 1 Classifier
-        classifiersNames.add(J48);
-        attrSelectionNames.add(CFS_BESTFIRST);
+        //classifiersNames.add(J48);
+        //attrSelectionNames.add(CFS_BESTFIRST);
         // 2 Classifier
         classifiersNames.add(RANDOM_FOREST);
         attrSelectionNames.add(CFS_GREEDYSTEPWISE);
         /// 3 Classifier
-        classifiersNames.add(NAIVE_BAYES);
-        attrSelectionNames.add(INFO_GAIN);
+        //classifiersNames.add(NAIVE_BAYES);
+        //attrSelectionNames.add(INFO_GAIN);
+        /// 4 Classifier
+        //classifiersNames.add(RANDOM_FOREST);
+        //attrSelectionNames.add(CFS_BESTFIRST);
 
         Date dateStartDataset = sdf.parse(DATE_STRING_START_DATASET);
         Date dateStartTraining;
@@ -223,8 +228,8 @@ public class Driver2 {
                 visualizer.addResult("results\\" + r.classifier + "_"+ r.attrSel + "_"+ suffixNameFile, r);
                 visualizer.printResultAcc(r);
             }
-
-            System.out.println("NAIVE_BAYES_UPDATABLE and HOEFFDING_TREE are running concurrently");
+            if (RUN_UPDATABLE_CLASSIFIER)
+                System.out.println("NAIVE_BAYES_UPDATABLE and HOEFFDING_TREE are running concurrently");
 
             if(j!=0 && RUN_UPDATABLE_CLASSIFIER) {
                 for(Result ur: incrClassifier.update(sdf1.format(dateStartTraining), sdf1.format(dateEndTraining))) {

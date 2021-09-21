@@ -16,10 +16,11 @@ public class ManageCSV {
 
     private int[] countSeverity = new int[4];
     private int countTuples =0;
-    private Double percentageSeverity4 = 1.0;
-    private Double percentageSeverity2 = 0.8;
-    private Double percentageSeverity1 = 0.7;
-    private Double percentageSeverity3 = 0.8;
+    private final static Double percentageSeverity4 = 1.0;
+    private final static Double percentageSeverity2 = 0.8;
+    private final static Double percentageSeverity1 = 0.7;
+    private final static Double percentageSeverity3 = 0.8;
+    private final static int MAX_SEVERITY4 = 8000;
     private int THRESHOLD = 75000;
     private int granularity = 4;
     private Date startDataset;
@@ -45,6 +46,23 @@ public class ManageCSV {
 
         Iterator itr = list.iterator();
         String[] tmp;
+
+        if (countSeverity[3]>MAX_SEVERITY4){
+            while(itr.hasNext()){
+                tmp = (String[]) itr.next();
+                if (tmp[1].contains("4")){
+                    if (countSeverity[3]>MAX_SEVERITY4){
+                        itr.remove();
+                        countSeverity[3]--;
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        itr = list.iterator();
+
         while(itr.hasNext()){
            tmp = (String[]) itr.next();
            if (tmp[1].contains("2")){
