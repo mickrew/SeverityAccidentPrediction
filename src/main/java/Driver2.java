@@ -41,7 +41,7 @@ public class Driver2 {
     private final static boolean FIXED_GRANULARITY = true;
     private final static int THRESHOLD_DIMENSION_TRAININGSET = 10000;
     private final static boolean RUN_UPDATABLE_CLASSIFIER = true;
-    private final static boolean LOAD_ALL_TRAINING_AVAILABLE = true;
+    private final static boolean LOAD_ALL_TRAINING_AVAILABLE = true; //false = sliding window
 
     private final static int DRIFT =4;
     private final static int GRANULARITY = 4;
@@ -154,6 +154,7 @@ public class Driver2 {
                 dateStartDataset = DateUtils.addWeeks(dateStartDataset, manager.getGranularity());
             if (LOAD_ALL_TRAINING_AVAILABLE)
                 dateStartTraining=dateStartDataset;
+
             dateEndTraining = manager.getTuplesFromDB(dateStartTraining, FIXED_GRANULARITY, dateEndTraining, dateLimit);
 
             //manager.writeCSV("temple.csv");

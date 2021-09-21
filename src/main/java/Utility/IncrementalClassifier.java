@@ -1,3 +1,5 @@
+package Utility;
+
 import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.trees.HoeffdingTree;
 import weka.core.Debug;
@@ -14,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IncrementalClassifier {
-        public static void main(String[] args) throws Exception {
+        public static void runUpdatableClassifier(String[] args) throws Exception {
             ArffLoader loader = new ArffLoader();
             loader.setFile(new File("train.arff"));
             Instances structure = loader.getStructure();
