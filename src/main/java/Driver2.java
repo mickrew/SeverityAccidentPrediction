@@ -36,17 +36,17 @@ public class Driver2 {
     private final static String HOEFFDING_TREE = "HOEFFDING_TREE";
     private final static int NUM_WEEKS_TRAINING = 12;
 
-    private final static String DATE_STRING_START_DATASET = "2020-03-20 00:00:00";
+    private final static String DATE_STRING_START_DATASET = "2016-02-01 00:00:00";
     private final static String DATE_STRING_START_ANALYSIS = "2018-01-29 00:00:00";
     private final static String DATELIMIT = "2020-12-31 23:59:59";
 
     private final static boolean FIXED_GRANULARITY = true;
     private final static int THRESHOLD_DIMENSION_TRAININGSET = 10000;
-    private final static boolean RUN_UPDATABLE_CLASSIFIER = false;
+    private final static boolean RUN_UPDATABLE_CLASSIFIER = true;
     private final static boolean LOAD_ALL_TRAINING_AVAILABLE = false; //false = sliding window
 
-    private final static int DRIFT =2;
-    private final static int GRANULARITY =2;
+    private final static int DRIFT =8;
+    private final static int GRANULARITY =8;
     private final static int NUM_ITERATION = 256;
     private final static boolean CROSS_VALIDATION = false;
 
@@ -117,11 +117,11 @@ public class Driver2 {
         //classifiersNames.add(J48);
         //attrSelectionNames.add(CFS_GREEDYSTEPWISE);
         // 2 Classifier
-        classifiersNames.add(RANDOM_FOREST);
-        attrSelectionNames.add(INFO_GAIN);
-        /// 3 Classifier
-        //classifiersNames.add(NAIVE_BAYES);
+        //classifiersNames.add(RANDOM_FOREST);
         //attrSelectionNames.add(INFO_GAIN);
+        /// 3 Classifier
+        classifiersNames.add(NAIVE_BAYES);
+        attrSelectionNames.add(INFO_GAIN);
         /// 4 Classifier
         //classifiersNames.add(RANDOM_FOREST);
         //attrSelectionNames.add(CFS_BESTFIRST);
@@ -160,14 +160,12 @@ public class Driver2 {
             System.out.println("Read Training Set");
             System.out.println("-----------------");
 
-            if (countTrainingSet > THRESHOLD_DIMENSION_TRAININGSET) {
+            if (countTrainingSet > THRESHOLD_DIMENSION_TRAININGSET && LOAD_ALL_TRAINING_AVAILABLE) {
                 dateStartDataset = DateUtils.addWeeks(dateStartDataset, manager.getGranularity());
                 countReduce++;
             }
-            if (LOAD_ALL_TRAINING_AVAILABLE)
-                dateStartTraining=dateStartDataset;
 
-            dateEndTraining = manager.getTuplesFromDB(dateStartTraining, FIXED_GRANULARITY, dateEndTraining, dateLimit);
+            dateEndTraining = manager.getTuplesFromDB(LOAD_ALL_TRAINING_AVAILABLE?dateStartDataset:dateStartTraining, FIXED_GRANULARITY, dateEndTraining, dateLimit);
 
             //manager.writeCSV("temple.csv");
             manager.printCoutnSeverity();
