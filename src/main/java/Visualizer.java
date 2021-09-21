@@ -175,10 +175,15 @@ public class Visualizer{
 
     public void printMetrics(PrintWriter printWriter3, Result r){
         NumberFormat formatter = new DecimalFormat("#.###");
-        printWriter3.printf("%s,%s,%s,", r.startDate,r.endDate, formatter.format(r.accuracy).replace(",","."));
+
+        printWriter3.printf("%s,%s,%s,\n", r.startDate,r.endDate, formatter.format(r.accuracy).replace(",","."));
+        /*
         for(int i=0; i<r.fMeasure.length; i++)
             printWriter3.printf("%s,",formatter.format(r.fMeasure[i]).replace(",","."));
         printWriter3.printf("%s\n",formatter.format(r.weightedFMeasure).replace(",","."));
+        */
+        printWriter3.printf("%s\n", r.confusionMatrix);
+
     }
 
 }
